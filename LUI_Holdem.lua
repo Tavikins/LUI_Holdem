@@ -28,7 +28,7 @@ function LUI_Holdem:new(o)
     o = o or {}
     setmetatable(o, self)
     self.__index = self
-    self.version = 1.01
+    self.version = 1.10
     self.defaults = {
     	["blinds"] = 100,
     	["cash"] = 10000000,
@@ -4896,6 +4896,7 @@ end
 ]]
 
 function LUI_Holdem:Shuffle()
+	--Print("Shuffle")
 	math.randomseed(os.time())
 	for i = 1, #self.cards, 1 do
 		self.validcards[i].valid = true
@@ -4905,33 +4906,30 @@ function LUI_Holdem:Shuffle()
 end
 
 function LUI_Holdem:GetCard()
+	--Print("GetCard")
     local finished = false
     local card = nil
     local final = 0
+	local nCardIdx = 0
 
-    for idx = 1, #self.cards, 1 do
-        local i = math.random(#self.cards)
-        if self.validcards[i].valid == true then
-			self.validcards[i].valid = false
-            card = i
-			finished = true
-            break
+    while true do
+        nCardIdx = math.random(#self.cards)
+		--Print(self.validcards[nCardIdx].sprite .. ":" .. tostring(self.validcards[nCardIdx].valid))
+        if self.validcards[nCardIdx].valid == true then
+			self.validcards[nCardIdx].valid = false
+			break
         end
 	end
-    if card == nil then
-    	self:Shuffle()
-		card = self:GetCard()
-	end
-    return card
+    return nCardIdx
 end
 
 function LUI_Holdem:ShowTimer()
     if not self.actionTimer then
-        self.actionTimer = ApolloTimer.Create(0.5, true, "OnBarTimer", self)
+        self.actionTimer = ApolloTimer.Create(0.01, true, "OnBarTimer", self)
     end
 
     self.actionTimer:Stop()
-    self.actionTimer:Set(0.5, true, "OnBarTimer")
+    self.actionTimer:Set(0.01, true, "OnBarTimer")
     self.actionTimer:Start()
 end
 
@@ -4940,7 +4938,7 @@ function LUI_Holdem:OnBarTimer()
         local diff = os.time() - self.players[self.current].timer
         self.players[self.current].remaining = self.game.actionTimer - diff
 
-        if self.players[self.current].remaining > 0 then
+        if self.players[self.current].remaining > 0.01 then
             self.wndPlayers[self.current]:FindChild("Bar"):SetMax(self.game.actionTimer)
             self.wndPlayers[self.current]:FindChild("Bar"):SetProgress(self.players[self.current].remaining)
             self.wndPlayers[self.current]:FindChild("Bar"):Show(true)
