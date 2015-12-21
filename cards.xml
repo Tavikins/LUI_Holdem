@@ -1,0 +1,165 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Sprites>
+    <Sprite Name="C14" Cycle="1">
+        <Frame Texture="LUI_Holdem\cards\clubs\ace.png" x0="0" x1="0" x2="0" x3="0" x4="174" x5="174" y0="0" y1="0" y2="0" y3="0" y4="238" y5="238" Stretchy="1" HotspotX="0" HotspotY="0" Duration="1.000" StartColor="white" EndColor="white"/>
+    </Sprite>
+    <Sprite Name="C2" Cycle="1">
+        <Frame Texture="LUI_Holdem\cards\clubs\two.png" x0="0" x1="0" x2="0" x3="0" x4="174" x5="174" y0="0" y1="0" y2="0" y3="0" y4="238" y5="238" Stretchy="1" HotspotX="0" HotspotY="0" Duration="1.000" StartColor="white" EndColor="white"/>
+    </Sprite>
+    <Sprite Name="C3" Cycle="1">
+        <Frame Texture="LUI_Holdem\cards\clubs\three.png" x0="0" x1="0" x2="0" x3="0" x4="174" x5="174" y0="0" y1="0" y2="0" y3="0" y4="238" y5="238" Stretchy="1" HotspotX="0" HotspotY="0" Duration="1.000" StartColor="white" EndColor="white"/>
+    </Sprite>
+    <Sprite Name="C4" Cycle="1">
+        <Frame Texture="LUI_Holdem\cards\clubs\four.png" x0="0" x1="0" x2="0" x3="0" x4="174" x5="174" y0="0" y1="0" y2="0" y3="0" y4="238" y5="238" Stretchy="1" HotspotX="0" HotspotY="0" Duration="1.000" StartColor="white" EndColor="white"/>
+    </Sprite>
+    <Sprite Name="C5" Cycle="1">
+        <Frame Texture="LUI_Holdem\cards\clubs\five.png" x0="0" x1="0" x2="0" x3="0" x4="174" x5="174" y0="0" y1="0" y2="0" y3="0" y4="238" y5="238" Stretchy="1" HotspotX="0" HotspotY="0" Duration="1.000" StartColor="white" EndColor="white"/>
+    </Sprite>
+    <Sprite Name="C6" Cycle="1">
+        <Frame Texture="LUI_Holdem\cards\clubs\six.png" x0="0" x1="0" x2="0" x3="0" x4="174" x5="174" y0="0" y1="0" y2="0" y3="0" y4="238" y5="238" Stretchy="1" HotspotX="0" HotspotY="0" Duration="1.000" StartColor="white" EndColor="white"/>
+    </Sprite>
+    <Sprite Name="C7" Cycle="1">
+        <Frame Texture="LUI_Holdem\cards\clubs\seven.png" x0="0" x1="0" x2="0" x3="0" x4="174" x5="174" y0="0" y1="0" y2="0" y3="0" y4="238" y5="238" Stretchy="1" HotspotX="0" HotspotY="0" Duration="1.000" StartColor="white" EndColor="white"/>
+    </Sprite>
+    <Sprite Name="C8" Cycle="1">
+        <Frame Texture="LUI_Holdem\cards\clubs\eight.png" x0="0" x1="0" x2="0" x3="0" x4="174" x5="174" y0="0" y1="0" y2="0" y3="0" y4="238" y5="238" Stretchy="1" HotspotX="0" HotspotY="0" Duration="1.000" StartColor="white" EndColor="white"/>
+    </Sprite>
+    <Sprite Name="C9" Cycle="1">
+        <Frame Texture="LUI_Holdem\cards\clubs\nine.png" x0="0" x1="0" x2="0" x3="0" x4="174" x5="174" y0="0" y1="0" y2="0" y3="0" y4="238" y5="238" Stretchy="1" HotspotX="0" HotspotY="0" Duration="1.000" StartColor="white" EndColor="white"/>
+    </Sprite>
+    <Sprite Name="C10" Cycle="1">
+        <Frame Texture="LUI_Holdem\cards\clubs\ten.png" x0="0" x1="0" x2="0" x3="0" x4="174" x5="174" y0="0" y1="0" y2="0" y3="0" y4="238" y5="238" Stretchy="1" HotspotX="0" HotspotY="0" Duration="1.000" StartColor="white" EndColor="white"/>
+    </Sprite>
+    <Sprite Name="C11" Cycle="1">
+        <Frame Texture="LUI_Holdem\cards\clubs\jack.png" x0="0" x1="0" x2="0" x3="0" x4="174" x5="174" y0="0" y1="0" y2="0" y3="0" y4="238" y5="238" Stretchy="1" HotspotX="0" HotspotY="0" Duration="1.000" StartColor="white" EndColor="white"/>
+    </Sprite>
+    <Sprite Name="C12" Cycle="1">
+        <Frame Texture="LUI_Holdem\cards\clubs\queen.png" x0="0" x1="0" x2="0" x3="0" x4="174" x5="174" y0="0" y1="0" y2="0" y3="0" y4="238" y5="238" Stretchy="1" HotspotX="0" HotspotY="0" Duration="1.000" StartColor="white" EndColor="white"/>
+    </Sprite>
+    <Sprite Name="C13" Cycle="1">
+        <Frame Texture="LUI_Holdem\cards\clubs\king.png" x0="0" x1="0" x2="0" x3="0" x4="174" x5="174" y0="0" y1="0" y2="0" y3="0" y4="238" y5="238" Stretchy="1" HotspotX="0" HotspotY="0" Duration="1.000" StartColor="white" EndColor="white"/>
+    </Sprite>
+    <Sprite Name="D14" Cycle="1">
+        <Frame Texture="LUI_Holdem\cards\diamonds\ace.png" x0="0" x1="0" x2="0" x3="0" x4="174" x5="174" y0="0" y1="0" y2="0" y3="0" y4="238" y5="238" Stretchy="1" HotspotX="0" HotspotY="0" Duration="1.000" StartColor="white" EndColor="white"/>
+    </Sprite>
+    <Sprite Name="D2" Cycle="1">
+        <Frame Texture="LUI_Holdem\cards\diamonds\two.png" x0="0" x1="0" x2="0" x3="0" x4="174" x5="174" y0="0" y1="0" y2="0" y3="0" y4="238" y5="238" Stretchy="1" HotspotX="0" HotspotY="0" Duration="1.000" StartColor="white" EndColor="white"/>
+    </Sprite>
+    <Sprite Name="D3" Cycle="1">
+        <Frame Texture="LUI_Holdem\cards\diamonds\three.png" x0="0" x1="0" x2="0" x3="0" x4="174" x5="174" y0="0" y1="0" y2="0" y3="0" y4="238" y5="238" Stretchy="1" HotspotX="0" HotspotY="0" Duration="1.000" StartColor="white" EndColor="white"/>
+    </Sprite>
+    <Sprite Name="D4" Cycle="1">
+        <Frame Texture="LUI_Holdem\cards\diamonds\four.png" x0="0" x1="0" x2="0" x3="0" x4="174" x5="174" y0="0" y1="0" y2="0" y3="0" y4="238" y5="238" Stretchy="1" HotspotX="0" HotspotY="0" Duration="1.000" StartColor="white" EndColor="white"/>
+    </Sprite>
+    <Sprite Name="D5" Cycle="1">
+        <Frame Texture="LUI_Holdem\cards\diamonds\five.png" x0="0" x1="0" x2="0" x3="0" x4="174" x5="174" y0="0" y1="0" y2="0" y3="0" y4="238" y5="238" Stretchy="1" HotspotX="0" HotspotY="0" Duration="1.000" StartColor="white" EndColor="white"/>
+    </Sprite>
+    <Sprite Name="D6" Cycle="1">
+        <Frame Texture="LUI_Holdem\cards\diamonds\six.png" x0="0" x1="0" x2="0" x3="0" x4="174" x5="174" y0="0" y1="0" y2="0" y3="0" y4="238" y5="238" Stretchy="1" HotspotX="0" HotspotY="0" Duration="1.000" StartColor="white" EndColor="white"/>
+    </Sprite>
+    <Sprite Name="D7" Cycle="1">
+        <Frame Texture="LUI_Holdem\cards\diamonds\seven.png" x0="0" x1="0" x2="0" x3="0" x4="174" x5="174" y0="0" y1="0" y2="0" y3="0" y4="238" y5="238" Stretchy="1" HotspotX="0" HotspotY="0" Duration="1.000" StartColor="white" EndColor="white"/>
+    </Sprite>
+    <Sprite Name="D8" Cycle="1">
+        <Frame Texture="LUI_Holdem\cards\diamonds\eight.png" x0="0" x1="0" x2="0" x3="0" x4="174" x5="174" y0="0" y1="0" y2="0" y3="0" y4="238" y5="238" Stretchy="1" HotspotX="0" HotspotY="0" Duration="1.000" StartColor="white" EndColor="white"/>
+    </Sprite>
+    <Sprite Name="D9" Cycle="1">
+        <Frame Texture="LUI_Holdem\cards\diamonds\nine.png" x0="0" x1="0" x2="0" x3="0" x4="174" x5="174" y0="0" y1="0" y2="0" y3="0" y4="238" y5="238" Stretchy="1" HotspotX="0" HotspotY="0" Duration="1.000" StartColor="white" EndColor="white"/>
+    </Sprite>
+    <Sprite Name="D10" Cycle="1">
+        <Frame Texture="LUI_Holdem\cards\diamonds\ten.png" x0="0" x1="0" x2="0" x3="0" x4="174" x5="174" y0="1" y1="1" y2="1" y3="1" y4="238" y5="238" Stretchy="1" HotspotX="0" HotspotY="0" Duration="1.000" StartColor="white" EndColor="white"/>
+    </Sprite>
+    <Sprite Name="D11" Cycle="1">
+        <Frame Texture="LUI_Holdem\cards\diamonds\jack.png" x0="0" x1="0" x2="0" x3="0" x4="174" x5="174" y0="0" y1="0" y2="0" y3="0" y4="238" y5="238" Stretchy="1" HotspotX="0" HotspotY="0" Duration="1.000" StartColor="white" EndColor="white"/>
+    </Sprite>
+    <Sprite Name="D12" Cycle="1">
+        <Frame Texture="LUI_Holdem\cards\diamonds\queen.png" x0="0" x1="0" x2="0" x3="0" x4="174" x5="174" y0="0" y1="0" y2="0" y3="0" y4="238" y5="238" Stretchy="1" HotspotX="0" HotspotY="0" Duration="1.000" StartColor="white" EndColor="white"/>
+    </Sprite>
+    <Sprite Name="D13" Cycle="1">
+        <Frame Texture="LUI_Holdem\cards\diamonds\king.png" x0="0" x1="0" x2="0" x3="0" x4="174" x5="174" y0="0" y1="0" y2="0" y3="0" y4="238" y5="238" Stretchy="1" HotspotX="0" HotspotY="0" Duration="1.000" StartColor="white" EndColor="white"/>
+    </Sprite>
+    <Sprite Name="H14" Cycle="1">
+        <Frame Texture="LUI_Holdem\cards\hearts\ace.png" x0="0" x1="0" x2="0" x3="0" x4="174" x5="174" y0="0" y1="0" y2="0" y3="0" y4="238" y5="238" Stretchy="1" HotspotX="0" HotspotY="0" Duration="1.000" StartColor="white" EndColor="white"/>
+    </Sprite>
+    <Sprite Name="H2" Cycle="1">
+        <Frame Texture="LUI_Holdem\cards\hearts\two.png" x0="0" x1="0" x2="0" x3="0" x4="174" x5="174" y0="0" y1="0" y2="0" y3="0" y4="238" y5="238" Stretchy="1" HotspotX="0" HotspotY="0" Duration="1.000" StartColor="white" EndColor="white"/>
+    </Sprite>
+    <Sprite Name="H3" Cycle="1">
+        <Frame Texture="LUI_Holdem\cards\hearts\three.png" x0="0" x1="0" x2="0" x3="0" x4="174" x5="174" y0="0" y1="0" y2="0" y3="0" y4="238" y5="238" Stretchy="1" HotspotX="0" HotspotY="0" Duration="1.000" StartColor="white" EndColor="white"/>
+    </Sprite>
+    <Sprite Name="H4" Cycle="1">
+        <Frame Texture="LUI_Holdem\cards\hearts\four.png" x0="0" x1="0" x2="0" x3="0" x4="174" x5="174" y0="0" y1="0" y2="0" y3="0" y4="238" y5="238" Stretchy="1" HotspotX="0" HotspotY="0" Duration="1.000" StartColor="white" EndColor="white"/>
+    </Sprite>
+    <Sprite Name="H5" Cycle="1">
+        <Frame Texture="LUI_Holdem\cards\hearts\five.png" x0="0" x1="0" x2="0" x3="0" x4="174" x5="174" y0="0" y1="0" y2="0" y3="0" y4="238" y5="238" Stretchy="1" HotspotX="0" HotspotY="0" Duration="1.000" StartColor="white" EndColor="white"/>
+    </Sprite>
+    <Sprite Name="H6" Cycle="1">
+        <Frame Texture="LUI_Holdem\cards\hearts\six.png" x0="0" x1="0" x2="0" x3="0" x4="174" x5="174" y0="0" y1="0" y2="0" y3="0" y4="238" y5="238" Stretchy="1" HotspotX="0" HotspotY="0" Duration="1.000" StartColor="white" EndColor="white"/>
+    </Sprite>
+    <Sprite Name="H7" Cycle="1">
+        <Frame Texture="LUI_Holdem\cards\hearts\seven.png" x0="0" x1="0" x2="0" x3="0" x4="174" x5="174" y0="0" y1="0" y2="0" y3="0" y4="238" y5="238" Stretchy="1" HotspotX="0" HotspotY="0" Duration="1.000" StartColor="white" EndColor="white"/>
+    </Sprite>
+    <Sprite Name="H8" Cycle="1">
+        <Frame Texture="LUI_Holdem\cards\hearts\eight.png" x0="0" x1="0" x2="0" x3="0" x4="174" x5="174" y0="0" y1="0" y2="0" y3="0" y4="238" y5="238" Stretchy="1" HotspotX="0" HotspotY="0" Duration="1.000" StartColor="white" EndColor="white"/>
+    </Sprite>
+    <Sprite Name="H9" Cycle="1">
+        <Frame Texture="LUI_Holdem\cards\hearts\nine.png" x0="0" x1="0" x2="0" x3="0" x4="174" x5="174" y0="0" y1="0" y2="0" y3="0" y4="238" y5="238" Stretchy="1" HotspotX="0" HotspotY="0" Duration="1.000" StartColor="white" EndColor="white"/>
+    </Sprite>
+    <Sprite Name="H10" Cycle="1">
+        <Frame Texture="LUI_Holdem\cards\hearts\ten.png" x0="0" x1="0" x2="0" x3="0" x4="174" x5="174" y0="0" y1="0" y2="0" y3="0" y4="238" y5="238" Stretchy="1" HotspotX="0" HotspotY="0" Duration="1.000" StartColor="white" EndColor="white"/>
+    </Sprite>
+    <Sprite Name="H11" Cycle="1">
+        <Frame Texture="LUI_Holdem\cards\hearts\jack.png" x0="0" x1="0" x2="0" x3="0" x4="174" x5="174" y0="0" y1="0" y2="0" y3="0" y4="238" y5="238" Stretchy="1" HotspotX="0" HotspotY="0" Duration="1.000" StartColor="white" EndColor="white"/>
+    </Sprite>
+    <Sprite Name="H12" Cycle="1">
+        <Frame Texture="LUI_Holdem\cards\hearts\queen.png" x0="0" x1="0" x2="0" x3="0" x4="174" x5="174" y0="0" y1="0" y2="0" y3="0" y4="238" y5="238" Stretchy="1" HotspotX="0" HotspotY="0" Duration="1.000" StartColor="white" EndColor="white"/>
+    </Sprite>
+    <Sprite Name="H13" Cycle="1">
+        <Frame Texture="LUI_Holdem\cards\hearts\king.png" x0="0" x1="0" x2="0" x3="0" x4="174" x5="174" y0="0" y1="0" y2="0" y3="0" y4="238" y5="238" Stretchy="1" HotspotX="0" HotspotY="0" Duration="1.000" StartColor="white" EndColor="white"/>
+    </Sprite>
+    <Sprite Name="S14" Cycle="1">
+        <Frame Texture="LUI_Holdem\cards\spades\ace.png" x0="0" x1="0" x2="0" x3="0" x4="174" x5="174" y0="0" y1="0" y2="0" y3="0" y4="238" y5="238" Stretchy="1" HotspotX="0" HotspotY="0" Duration="1.000" StartColor="white" EndColor="white"/>
+    </Sprite>
+    <Sprite Name="S2" Cycle="1">
+        <Frame Texture="LUI_Holdem\cards\spades\two.png" x0="0" x1="0" x2="0" x3="0" x4="174" x5="174" y0="0" y1="0" y2="0" y3="0" y4="238" y5="238" Stretchy="1" HotspotX="0" HotspotY="0" Duration="1.000" StartColor="white" EndColor="white"/>
+    </Sprite>
+    <Sprite Name="S3" Cycle="1">
+        <Frame Texture="LUI_Holdem\cards\spades\three.png" x0="0" x1="0" x2="0" x3="0" x4="174" x5="174" y0="0" y1="0" y2="0" y3="0" y4="238" y5="238" Stretchy="1" HotspotX="0" HotspotY="0" Duration="1.000" StartColor="white" EndColor="white"/>
+    </Sprite>
+    <Sprite Name="S4" Cycle="1">
+        <Frame Texture="LUI_Holdem\cards\spades\four.png" x0="0" x1="0" x2="0" x3="0" x4="174" x5="174" y0="0" y1="0" y2="0" y3="0" y4="238" y5="238" Stretchy="1" HotspotX="0" HotspotY="0" Duration="1.000" StartColor="white" EndColor="white"/>
+    </Sprite>
+    <Sprite Name="S5" Cycle="1">
+        <Frame Texture="LUI_Holdem\cards\spades\five.png" x0="0" x1="0" x2="0" x3="0" x4="174" x5="174" y0="0" y1="0" y2="0" y3="0" y4="238" y5="238" Stretchy="1" HotspotX="0" HotspotY="0" Duration="1.000" StartColor="white" EndColor="white"/>
+    </Sprite>
+    <Sprite Name="S6" Cycle="1">
+        <Frame Texture="LUI_Holdem\cards\spades\six.png" x0="0" x1="0" x2="0" x3="0" x4="174" x5="174" y0="0" y1="0" y2="0" y3="0" y4="238" y5="238" Stretchy="1" HotspotX="0" HotspotY="0" Duration="1.000" StartColor="white" EndColor="white"/>
+    </Sprite>
+    <Sprite Name="S7" Cycle="1">
+        <Frame Texture="LUI_Holdem\cards\spades\seven.png" x0="0" x1="0" x2="0" x3="0" x4="174" x5="174" y0="0" y1="0" y2="0" y3="0" y4="238" y5="238" Stretchy="1" HotspotX="0" HotspotY="0" Duration="1.000" StartColor="white" EndColor="white"/>
+    </Sprite>
+    <Sprite Name="S8" Cycle="1">
+        <Frame Texture="LUI_Holdem\cards\spades\eight.png" x0="0" x1="0" x2="0" x3="0" x4="174" x5="174" y0="0" y1="0" y2="0" y3="0" y4="238" y5="238" Stretchy="1" HotspotX="0" HotspotY="0" Duration="1.000" StartColor="white" EndColor="white"/>
+    </Sprite>
+    <Sprite Name="S9" Cycle="1">
+        <Frame Texture="LUI_Holdem\cards\spades\nine.png" x0="0" x1="0" x2="0" x3="0" x4="174" x5="174" y0="0" y1="0" y2="0" y3="0" y4="238" y5="238" Stretchy="1" HotspotX="0" HotspotY="0" Duration="1.000" StartColor="white" EndColor="white"/>
+    </Sprite>
+    <Sprite Name="S10" Cycle="1">
+        <Frame Texture="LUI_Holdem\cards\spades\ten.png" x0="0" x1="0" x2="0" x3="0" x4="174" x5="174" y0="0" y1="0" y2="0" y3="0" y4="238" y5="238" Stretchy="1" HotspotX="0" HotspotY="0" Duration="1.000" StartColor="white" EndColor="white"/>
+    </Sprite>
+    <Sprite Name="S11" Cycle="1">
+        <Frame Texture="LUI_Holdem\cards\spades\jack.png" x0="0" x1="0" x2="0" x3="0" x4="174" x5="174" y0="0" y1="0" y2="0" y3="0" y4="238" y5="238" Stretchy="1" HotspotX="0" HotspotY="0" Duration="1.000" StartColor="white" EndColor="white"/>
+    </Sprite>
+    <Sprite Name="S12" Cycle="1">
+        <Frame Texture="LUI_Holdem\cards\spades\queen.png" x0="0" x1="0" x2="0" x3="0" x4="174" x5="174" y0="0" y1="0" y2="0" y3="0" y4="238" y5="238" Stretchy="1" HotspotX="0" HotspotY="0" Duration="1.000" StartColor="white" EndColor="white"/>
+    </Sprite>
+    <Sprite Name="S13" Cycle="1">
+        <Frame Texture="LUI_Holdem\cards\spades\king.png" x0="0" x1="0" x2="0" x3="0" x4="174" x5="174" y0="0" y1="0" y2="0" y3="0" y4="238" y5="238" Stretchy="1" HotspotX="0" HotspotY="0" Duration="1.000" StartColor="white" EndColor="white"/>
+    </Sprite>
+    <Sprite Name="back_red" Cycle="1">
+        <Frame Texture="LUI_Holdem\cards\red.png" x0="0" x1="0" x2="0" x3="0" x4="174" x5="174" y0="0" y1="0" y2="0" y3="0" y4="238" y5="238" Stretchy="1" HotspotX="0" HotspotY="0" Duration="1.000" StartColor="white" EndColor="white"/>
+    </Sprite>
+    <Sprite Name="back_blue" Cycle="1">
+        <Frame Texture="LUI_Holdem\cards\blue.png" x0="0" x1="0" x2="0" x3="0" x4="174" x5="174" y0="0" y1="0" y2="0" y3="0" y4="238" y5="238" Stretchy="1" HotspotX="0" HotspotY="0" Duration="1.000" StartColor="white" EndColor="white"/>
+    </Sprite>
+</Sprites>

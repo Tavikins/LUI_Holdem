@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Addon Author="Loui" APIVersion="11" Name="LUI_Holdem" Description="WildStar Texas Hold&apos;em">
+	<Script Name="libs/LibJSON/LibJSON-2.5.lua"/>
+	<Script Name="libs/holdem/bit.lua"/>
+	<Script Name="libs/holdem/card.lua"/>
+	<Script Name="libs/holdem/lookup.lua"/>
+	<Script Name="libs/holdem/underscore.lua"/>
+	<Script Name="libs/holdem/analysis.lua"/>
+    <Script Name="LUI_Holdem.lua"/>
+    <Form Name="LUI_Holdem.xml"/>
+</Addon>
