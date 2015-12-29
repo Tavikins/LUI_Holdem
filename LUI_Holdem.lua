@@ -28,7 +28,7 @@ function LUI_Holdem:new(o)
     o = o or {}
     setmetatable(o, self)
     self.__index = self
-    self.version = 1.10
+    self.version = 1.1
     self.defaults = {
     	["blinds"] = 100,
     	["cash"] = 10000000,
@@ -45,7 +45,12 @@ function LUI_Holdem:new(o)
     }
     self.game = {}
     self.cards = {}
-	self.validcards = {}
+	self.validcards = {
+		["H2"] = true , ["H3"] = true , ["H4"] = true , ["H5"] = true , ["H6"] = true , ["H7"] = true , ["H8"] = true , ["H9"] = true , ["H10"] = true , ["H11"] = true , ["H12"] = true , ["H13"] = true , ["H14"] = true ,
+		["D2"] = true , ["D3"] = true , ["D4"] = true , ["D5"] = true , ["D6"] = true , ["D7"] = true , ["D8"] = true , ["D9"] = true , ["D10"] = true , ["D11"] = true , ["D12"] = true , ["D13"] = true , ["D14"] = true ,
+		["S2"] = true , ["S3"] = true , ["S4"] = true , ["S5"] = true , ["S6"] = true , ["S7"] = true , ["S8"] = true , ["S9"] = true , ["S10"] = true , ["S11"] = true , ["S12"] = true , ["S13"] = true , ["S14"] = true ,
+		["C2"] = true , ["C3"] = true , ["C4"] = true , ["C5"] = true , ["C6"] = true , ["C7"] = true , ["C8"] = true , ["C9"] = true , ["C10"] = true , ["C11"] = true , ["C12"] = true , ["C13"] = true , ["C14"] = true ,
+	}
     self.colors = {
         ["fold"] = "xkcdDarkRed",
         ["check"] = "xkcdDarkYellow",
@@ -216,6 +221,7 @@ function LUI_Holdem:new(o)
     	},
 	}
 
+	--H:491.2, W:800
 	self.buttons = {
 		colors = {
 			red = "xkcdDullRed",
@@ -224,8 +230,8 @@ function LUI_Holdem:new(o)
 		},
 		positions = {
 			[1] = {
-                anchorPoints = {0.55,0.15,0.55,0.15},
-                anchorOffsets = {-47,0,-11,36},
+                anchorPoints = {0.492,0.15,0.687,0.223},
+                anchorOffsets = {0,0,0,0},
             },
             [2] = {
                 anchorPoints = {0.8,0.35,0.8,0.35},
@@ -240,8 +246,8 @@ function LUI_Holdem:new(o)
                 anchorOffsets = {-108,31,-72,67},
             },
             [5] = {
-                anchorPoints = {0.55,0.8,0.55,0.8},
-                anchorOffsets = {-47,-36,-11,0},
+                anchorPoints = {0.492,0.8,0.687,0.8},
+                anchorOffsets = {0,-36,0,0},
             },
             [6] = {
                 anchorPoints = {0.45,0.8,0.45,0.8},
@@ -260,8 +266,8 @@ function LUI_Holdem:new(o)
                 anchorOffsets = {72,-67,-108,-31},
             },
             [10] = {
-                anchorPoints = {0.45,0.15,0.45,0.15},
-                anchorOffsets = {11,0,47,36},
+                anchorPoints = {0.45,0.15,0.45,0.223},
+                anchorOffsets = {11,0,47,0},
             }
 		}
 	}
@@ -316,44 +322,44 @@ function LUI_Holdem:new(o)
 
 	self.seats = {
     	[1] = {
-    		anchorPoints = {0.6,0,0.6,0},
-    		anchorOffsets = {-74,90,76,134},
+    		anchorPoints = 	{	0.547,	0.0957,		0.654,	0.1425	},
+    		anchorOffsets = {	0,		0,			0,		0		},
     	},
     	[2] = {
-    		anchorPoints = {1,0,1,0},
-    		anchorOffsets = {-340,130,-190,174},
+    		anchorPoints = {1-(340/1400),0+(130/940),1-(190/1400),0+(174/940)},
+    		anchorOffsets = {0,0,0,0},
     	},
     	[3] = {
-    		anchorPoints = {1,0.5,1,0.5},
-    		anchorOffsets = {-260,-22,-110,22},
+    		anchorPoints = {1-(260/1400),0.5-(22/940),1-(110/1400),0.5+(22/940)},
+    		anchorOffsets = {-0,-0,-0,0},
     	},
     	[4] = {
-    		anchorPoints = {1,1,1,1},
-    		anchorOffsets = {-340,-174,-190,-130},
+    		anchorPoints = {1-(340/1400),1-(174/940),1-(190/1400),1-(130/940)},
+    		anchorOffsets = {-0,-0,-0,-0},
     	},
     	[5] = {
-    		anchorPoints = {0.6,1,0.6,1},
-    		anchorOffsets = {-74,-134,76,-90},
+    		anchorPoints = {0.6-(740/1400),1-(134/940),0.6+(76/1400),1-(90/940)},
+    		anchorOffsets = {0,0,0,0},
     	},
     	[6] = {
-    		anchorPoints = {0.4,1,0.4,1},
-    		anchorOffsets = {-76,-134,74,-90},
+    		anchorPoints = {0.4-(76/1400),1-(-134/940),0.4+(74/1400),1-(90/940)},
+    		anchorOffsets = {0,0,0,0},
     	},
     	[7] = {
-    		anchorPoints = {0,1,0,1},
-    		anchorOffsets = {190,-174,340,-130},
+    		anchorPoints = {0+(190/1400),1-(174/940),0+(340/1400),1-(130/940)},
+    		anchorOffsets = {0,0,0,0},
     	},
     	[8] = {
-    		anchorPoints = {0,0.5,0,0.5},
-    		anchorOffsets = {110,-22,260,22},
+    		anchorPoints = {0+(110/1400),0.5-(22/940),0+(260/1400),0.5+(22/940)},
+    		anchorOffsets = {0,0,0,0},
     	},
     	[9] = {
-    		anchorPoints = {0,0,0,0},
-    		anchorOffsets = {190,130,340,174},
+    		anchorPoints = {0+(190/1400),0+(130/940),0+(340/1400),0+(174/940)},
+    		anchorOffsets = {0,0,0,0},
     	},
     	[10] = {
-    		anchorPoints = {0.4,0,0.4,0},
-    		anchorOffsets = {-76,90,74,134},
+    		anchorPoints = {0.4-(76/1400),0+(90/940),0.4+(74/1400),0+(134/940)},
+    		anchorOffsets = {0,0,0,0},
     	},
 	}
 
@@ -1893,7 +1899,6 @@ function LUI_Holdem:BuildTable()
 			}
 
 			table.insert(self.cards,card)
-			table.insert(self.validcards,card)
 		end
 	end
 
@@ -2530,7 +2535,6 @@ function LUI_Holdem:StartRound(message)
     self.game.big = message.big
     self.game.blind = message.blind
     self.game.ante = message.ante
-	self.game.cards = self.cards
 
     -- Sync Cash
     for i = 1, 10 do
@@ -2602,7 +2606,7 @@ function LUI_Holdem:StartRound(message)
 
 	-- Shuffle Cards
 	if self.game.host == self.name then
-		self.game.cards = self:Shuffle()
+		self:Shuffle()
 	end
 
     local initialPet = self.game.blind
@@ -3087,8 +3091,6 @@ function LUI_Holdem:OnNextPlayer()
        return
     end
 
-	Sound.Play(180)
-
     local cash = self.players[self.current].cash
 
     if self.game.bet.amount > 0 then
@@ -3439,10 +3441,13 @@ function LUI_Holdem:OnNextRound()
 
         -- Burn 1 card
 		self:GetCard()		
-
+		
+		local flopcards = {}
+		
         for i = 1, 3 do
             -- Create flop
-            table.insert(self.game.communityCards,self:GetCard())
+			flopcards[i] = self:GetCard()
+            table.insert(self.game.communityCards,flopcards[i])
         end
 
         local tMessage = {
@@ -3499,6 +3504,38 @@ function LUI_Holdem:OnNextRound()
         self:Evaluate()
     end
 end
+
+
+
+function LUI_Holdem:Shuffle()
+	--Print("Shuffle")
+	math.randomseed(os.time())
+	for k,v in pairs(self.validcards) do
+		self.validcards[k] = true
+	end
+	local deck = self.cards
+	return deck
+end
+
+
+
+function LUI_Holdem:GetCard()
+	--Print("GetCard")
+	local nCardIdx, spCard, bValid
+	
+    while true do
+        nCardIdx = math.random(#self.cards)
+		strCard = self.cards[nCardIdx].sprite
+		bValid = self.validcards[strCard]
+		Print(strCard .. ":" .. tostring(bValid))
+        if bValid == true then
+			self.validcards[strCard] = false
+			return nCardIdx
+        end
+	end
+end
+
+
 
 function LUI_Holdem:Evaluate()
     -- Build Community Cards
@@ -4876,8 +4913,8 @@ function LUI_Holdem:Shuffle(cards)
     end
     return random;
 end
-]]
---[[
+
+
 function LUI_Holdem:Shuffle(t, n)
     math.randomseed(os.time())
     if n == nil then n = 1 end
@@ -4893,43 +4930,55 @@ function LUI_Holdem:Shuffle(t, n)
     end
     return t
 end
-]]
-
-function LUI_Holdem:Shuffle()
-	--Print("Shuffle")
-	math.randomseed(os.time())
-	for i = 1, #self.cards, 1 do
-		self.validcards[i].valid = true
-	end
-	local deck = self.cards
-	return deck
-end
 
 function LUI_Holdem:GetCard()
-	--Print("GetCard")
     local finished = false
     local card = nil
     local final = 0
-	local nCardIdx = 0
 
-    while true do
-        nCardIdx = math.random(#self.cards)
-		--Print(self.validcards[nCardIdx].sprite .. ":" .. tostring(self.validcards[nCardIdx].valid))
-        if self.validcards[nCardIdx].valid == true then
-			self.validcards[nCardIdx].valid = false
-			break
+    while final == 0 do
+        while finished == false do
+            local count = #self.game.cards
+            local i = math.random(count)
+
+            if self.game.cards[i].valid == true then
+                card = self:Copy(self.game.cards[i])
+
+                -- Remove card
+                self.game.cards[i].valid = false
+                table.remove(self.game.cards,i)
+
+                while finished == false do
+                    if #self.game.cards == (count -1) then
+                        finished = true
+                    end
+                end
+            end
         end
-	end
-    return nCardIdx
+
+        for k,v in pairs(self.cards) do
+            if v.sprite == card.sprite and v.rank == card.rank and v.suit == card.suit then
+                final = k
+                break
+            end
+        end
+
+        if final == 0 then
+            finished = false
+        end
+    end
+
+    return final
 end
+]]
 
 function LUI_Holdem:ShowTimer()
     if not self.actionTimer then
-        self.actionTimer = ApolloTimer.Create(0.01, true, "OnBarTimer", self)
+        self.actionTimer = ApolloTimer.Create(0.1, true, "OnBarTimer", self)
     end
 
     self.actionTimer:Stop()
-    self.actionTimer:Set(0.01, true, "OnBarTimer")
+    self.actionTimer:Set(0.1, true, "OnBarTimer")
     self.actionTimer:Start()
 end
 
@@ -4938,7 +4987,7 @@ function LUI_Holdem:OnBarTimer()
         local diff = os.time() - self.players[self.current].timer
         self.players[self.current].remaining = self.game.actionTimer - diff
 
-        if self.players[self.current].remaining > 0.01 then
+        if self.players[self.current].remaining > 1 then
             self.wndPlayers[self.current]:FindChild("Bar"):SetMax(self.game.actionTimer)
             self.wndPlayers[self.current]:FindChild("Bar"):SetProgress(self.players[self.current].remaining)
             self.wndPlayers[self.current]:FindChild("Bar"):Show(true)
