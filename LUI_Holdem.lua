@@ -28,7 +28,7 @@ function LUI_Holdem:new(o)
     o = o or {}
     setmetatable(o, self)
     self.__index = self
-    self.version = 1.1
+    self.version = 1.2
     self.defaults = {
     	["blinds"] = 100,
     	["cash"] = 10000000,
@@ -42,6 +42,7 @@ function LUI_Holdem:new(o)
         ["alert"] = true,
         ["sound"] = true,
         ["check"] = false,
+		["mini"] = false,
     }
     self.game = {}
     self.cards = {}
@@ -167,17 +168,16 @@ function LUI_Holdem:new(o)
             active = false
         },
     }
-
     self.playerFrames = {
     	[1] = {
     		anchorPoints = {0.6,0,0.6,0},
     		anchorOffsets = {-134,0,126,180},
-    		cardPosition = "Bottom",
+    		cardPosition = "Top",
     	},
     	[2] = {
     		anchorPoints = {1,0,1,0},
     		anchorOffsets = {-400,70,-140,250},
-    		cardPosition = "Bottom",
+    		cardPosition = "Top",
     	},
     	[3] = {
     		anchorPoints = {1,0.5,1,0.5},
@@ -212,16 +212,15 @@ function LUI_Holdem:new(o)
     	[9] = {
     		anchorPoints = {0,0,0,0},
     		anchorOffsets = {140,70,400,250},
-    		cardPosition = "Bottom",
+    		cardPosition = "Top",
     	},
     	[10] = {
     		anchorPoints = {0.4,0,0.4,0},
     		anchorOffsets = {-126,0,134,180},
-    		cardPosition = "Bottom",
+    		cardPosition = "Top",
     	},
 	}
 
-	--H:491.2, W:800
 	self.buttons = {
 		colors = {
 			red = "xkcdDullRed",
@@ -230,8 +229,8 @@ function LUI_Holdem:new(o)
 		},
 		positions = {
 			[1] = {
-                anchorPoints = {0.492,0.15,0.687,0.223},
-                anchorOffsets = {0,0,0,0},
+                anchorPoints = {0.55,0.15,0.55,0.15},
+                anchorOffsets = {-47,0,-11,36},
             },
             [2] = {
                 anchorPoints = {0.8,0.35,0.8,0.35},
@@ -246,8 +245,8 @@ function LUI_Holdem:new(o)
                 anchorOffsets = {-108,31,-72,67},
             },
             [5] = {
-                anchorPoints = {0.492,0.8,0.687,0.8},
-                anchorOffsets = {0,-36,0,0},
+                anchorPoints = {0.55,0.8,0.55,0.8},
+                anchorOffsets = {-47,-36,-11,0},
             },
             [6] = {
                 anchorPoints = {0.45,0.8,0.45,0.8},
@@ -266,8 +265,8 @@ function LUI_Holdem:new(o)
                 anchorOffsets = {72,-67,-108,-31},
             },
             [10] = {
-                anchorPoints = {0.45,0.15,0.45,0.223},
-                anchorOffsets = {11,0,47,0},
+                anchorPoints = {0.45,0.15,0.45,0.15},
+                anchorOffsets = {11,0,47,36},
             }
 		}
 	}
@@ -322,6 +321,201 @@ function LUI_Holdem:new(o)
 
 	self.seats = {
     	[1] = {
+    		anchorPoints = {0.6,0,0.6,0},
+    		anchorOffsets = {-74,90,76,134},
+    	},
+    	[2] = {
+    		anchorPoints = {1,0,1,0},
+    		anchorOffsets = {-340,130,-190,174},
+    	},
+    	[3] = {
+    		anchorPoints = {1,0.5,1,0.5},
+    		anchorOffsets = {-260,-22,-110,22},
+    	},
+    	[4] = {
+    		anchorPoints = {1,1,1,1},
+    		anchorOffsets = {-340,-174,-190,-130},
+    	},
+    	[5] = {
+    		anchorPoints = {0.6,1,0.6,1},
+    		anchorOffsets = {-74,-134,76,-90},
+    	},
+    	[6] = {
+    		anchorPoints = {0.4,1,0.4,1},
+    		anchorOffsets = {-76,-134,74,-90},
+    	},
+    	[7] = {
+    		anchorPoints = {0,1,0,1},
+    		anchorOffsets = {190,-174,340,-130},
+    	},
+    	[8] = {
+    		anchorPoints = {0,0.5,0,0.5},
+    		anchorOffsets = {110,-22,260,22},
+    	},
+    	[9] = {
+    		anchorPoints = {0,0,0,0},
+    		anchorOffsets = {190,130,340,174},
+    	},
+    	[10] = {
+    		anchorPoints = {0.4,0,0.4,0},
+    		anchorOffsets = {-76,90,74,134},
+    	},
+	}
+
+    self.playerFramesMini = {
+    	[1] = {
+    		anchorPoints = {0.6,0,0.6,0},
+    		anchorOffsets = {-134,0,126,180},
+    		cardPosition = "Top",
+    	},
+    	[2] = {
+    		anchorPoints = {1,0,1,0},
+    		anchorOffsets = {-400,70,-140,250},
+    		cardPosition = "Top",
+    	},
+    	[3] = {
+    		anchorPoints = {1,0.5,1,0.5},
+    		anchorOffsets = {-270,-110,-10,70},
+    		cardPosition = "Top",
+    	},
+    	[4] = {
+    		anchorPoints = {1,1,1,1},
+    		anchorOffsets = {-400,-250,-140,-70},
+    		cardPosition = "Top",
+    	},
+    	[5] = {
+    		anchorPoints = {0.6,1,0.6,1},
+    		anchorOffsets = {-134,-180,126,0},
+    		cardPosition = "Top",
+    	},
+    	[6] = {
+    		anchorPoints = {0.4,1,0.4,1},
+    		anchorOffsets = {-126,-180,134,0},
+    		cardPosition = "Top",
+    	},
+    	[7] = {
+    		anchorPoints = {0,1,0,1},
+    		anchorOffsets = {140,-250,400,-70},
+    		cardPosition = "Top",
+    	},
+    	[8] = {
+    		anchorPoints = {0,0.5,0,0.5},
+    		anchorOffsets = {10,-110,270,70},
+    		cardPosition = "Top",
+    	},
+    	[9] = {
+    		anchorPoints = {0,0,0,0},
+    		anchorOffsets = {140,70,400,250},
+    		cardPosition = "Top",
+    	},
+    	[10] = {
+    		anchorPoints = {0.4,0,0.4,0},
+    		anchorOffsets = {-126,0,134,180},
+    		cardPosition = "Top",
+    	},
+	}
+
+	--H:491.2, W:800
+	self.buttonsMini = {
+		colors = {
+			red = "xkcdDullRed",
+			blue = "UI_WindowTextCraftingBlueResistor",
+			yellow = "xkcdDullYellow",
+		},
+		positions = {
+			[1] = {
+                anchorPoints = {0.492,0.15,0.687,0.223},
+                anchorOffsets = {0,0,0,0},
+            },
+            [2] = {
+                anchorPoints = {0.8,0.35,0.8,0.35},
+                anchorOffsets = {-98,-57,-62,-21},
+            },
+            [3] = {
+                anchorPoints = {0.8,0.5,0.8,0.5},
+                anchorOffsets = {-32,-18,4,18},
+            },
+            [4] = {
+                anchorPoints = {0.8,0.65,0.8,0.65},
+                anchorOffsets = {-108,31,-72,67},
+            },
+            [5] = {
+                anchorPoints = {0.492,0.8,0.687,0.8},
+                anchorOffsets = {0,-36,0,0},
+            },
+            [6] = {
+                anchorPoints = {0.45,0.8,0.45,0.8},
+                anchorOffsets = {11,-36,47,0},
+            },
+            [7] = {
+                anchorPoints = {0.2,0.65,0.2,0.65},
+                anchorOffsets = {72,31,108,67},
+            },
+            [8] = {
+                anchorPoints = {0.2,0.5,0.2,0.5},
+                anchorOffsets = {-4,-18,32,18},
+            },
+            [9] = {
+                anchorPoints = {0.2,0.35,0.2,0.35},
+                anchorOffsets = {72,-67,-108,-31},
+            },
+            [10] = {
+                anchorPoints = {0.45,0.15,0.45,0.223},
+                anchorOffsets = {11,0,47,0},
+            }
+		}
+	}
+
+	self.cashMini = {
+		[1] = {
+    		anchorPoints = {0.6,0.35,0.6,0.35},
+    		anchorOffsets = {-134,-45,-4,-15},
+    	},
+    	[2] = {
+    		anchorPoints = {0.75,0.35,0.75,0.35},
+    		anchorOffsets = {-205,-15,-45,15},
+    	},
+    	[3] = {
+    		anchorPoints = {0.75,0.5,0.75,0.5},
+    		anchorOffsets = {-155,-15,5,15},
+    	},
+    	[4] = {
+    		anchorPoints = {0.75,0.65,0.75,0.65},
+    		anchorOffsets = {-205,-15,-45,15},
+    	},
+    	[5] = {
+    		anchorPoints = {0.6,0.65,0.6,0.65},
+    		anchorOffsets = {-134,16,-4,46},
+    	},
+    	[6] = {
+    		anchorPoints = {0.4,0.65,0.4,0.65},
+    		anchorOffsets = {-86,16,34,46},
+            grow = true,
+    	},
+    	[7] = {
+    		anchorPoints = {0.25,0.65,0.25,0.65},
+    		anchorOffsets = {-55,-15,80,15},
+            grow = true,
+    	},
+    	[8] = {
+    		anchorPoints = {0.25,0.5,0.25,0.5},
+    		anchorOffsets = {-85,-15,30,15},
+            grow = true,
+    	},
+    	[9] = {
+    		anchorPoints = {0.25,0.35,0.25,0.35},
+    		anchorOffsets = {-55,-15,80,15},
+            grow = true,
+    	},
+    	[10] = {
+    		anchorPoints = {0.4,0.35,0.4,0.35},
+    		anchorOffsets = {-86,-45,34,-15},
+            grow = true,
+    	},
+	}
+
+	self.seatsMini = {
+    	[1] = {
     		anchorPoints = 	{	0.547,	0.0957,		0.654,	0.1425	},
     		anchorOffsets = {	0,		0,			0,		0		},
     	},
@@ -338,11 +532,11 @@ function LUI_Holdem:new(o)
     		anchorOffsets = {-0,-0,-0,-0},
     	},
     	[5] = {
-    		anchorPoints = {0.6-(740/1400),1-(134/940),0.6+(76/1400),1-(90/940)},
+    		anchorPoints = {0.6-(74/1400),1-(134/940),0.6+(76/1400),1-(90/940)},
     		anchorOffsets = {0,0,0,0},
     	},
     	[6] = {
-    		anchorPoints = {0.4-(76/1400),1-(-134/940),0.4+(74/1400),1-(90/940)},
+    		anchorPoints = {0.4-(76/1400),1-(134/940),0.4+(74/1400),1-(90/940)},
     		anchorOffsets = {0,0,0,0},
     	},
     	[7] = {
@@ -362,7 +556,6 @@ function LUI_Holdem:new(o)
     		anchorOffsets = {0,0,0,0},
     	},
 	}
-
     return o
 end
 
@@ -1754,13 +1947,28 @@ end
 -- #########################################################################################################################################
 -- #########################################################################################################################################
 
+
+
+function LUI_Holdem:ScaleOffsets(points)
+	local offsets = points
+	if offsets == nil then return end
+	for k,point in ipairs(offsets) do
+		--offsets[k] = point * scale
+	end
+	return offsets
+end
+
+
 function LUI_Holdem:BuildTable()
 	if not self.wndTable then
 		self.wndTable = Apollo.LoadForm(self.xmlDoc, "TableForm", nil, self)
     end
 
     -- Set Minimum Dimensions
-    self.wndTable:SetSizingMinimum(1400, 959)
+    --self.wndTable:SetSizingMinimum(1400, 959)
+	local l,t,r,b = self.wndTable:GetAnchorOffsets()
+	local offsets = {l,t,r,b}
+	self.wndTable:SetAnchorOffsets(unpack(self.settings["tablepos"]))
 
 	if self.wndPlayers ~= nil then
 		for i = 1, 10 do
@@ -1793,7 +2001,7 @@ function LUI_Holdem:BuildTable()
 		-- Create Table Seats
 		self.wndSeats[i] = Apollo.LoadForm(self.xmlDoc, "PlayerSeat", self.wndTable:FindChild("Table"), self)
 		self.wndSeats[i]:SetAnchorPoints(unpack(self.seats[i].anchorPoints))
-		self.wndSeats[i]:SetAnchorOffsets(unpack(self.seats[i].anchorOffsets))
+		self.wndSeats[i]:SetAnchorOffsets(unpack(self:ScaleOffsets(self.seats[i].anchorOffsets)))
 		self.wndSeats[i]:FindChild("Button"):SetData(i)
         self.wndSeats[i]:FindChild("JoinGame"):SetData(i)
         self.wndSeats[i]:FindChild("CashWindow"):Show(false,true)
@@ -1802,7 +2010,7 @@ function LUI_Holdem:BuildTable()
 		-- Create Player Frames
 		self.wndPlayers[i] = Apollo.LoadForm(self.xmlDoc, "PlayerItem:"..self.playerFrames[i].cardPosition, self.wndTable:FindChild("Table"), self)
 		self.wndPlayers[i]:SetAnchorPoints(unpack(self.playerFrames[i].anchorPoints))
-		self.wndPlayers[i]:SetAnchorOffsets(unpack(self.playerFrames[i].anchorOffsets))
+		self.wndPlayers[i]:SetAnchorOffsets(unpack(self:ScaleOffsets(self.playerFrames[i].anchorOffsets)))
         self.wndPlayers[i]:FindChild("Glow"):Show(false,true)
 		self.wndPlayers[i]:FindChild("Active"):Show(false,true)
         self.wndPlayers[i]:FindChild("PlayerAction"):Show(false,true)
@@ -1813,7 +2021,7 @@ function LUI_Holdem:BuildTable()
 		-- Create Cash Items
 		self.wndCash[i] = Apollo.LoadForm(self.xmlDoc, "CashItem", self.wndTable:FindChild("Table"), self)
 		self.wndCash[i]:SetAnchorPoints(unpack(self.cash[i].anchorPoints))
-		self.wndCash[i]:SetAnchorOffsets(unpack(self.cash[i].anchorOffsets))
+		self.wndCash[i]:SetAnchorOffsets(unpack(self:ScaleOffsets(self.cash[i].anchorOffsets)))
         self.wndCash[i]:FindChild("CashWindow"):SetAmount(0,true)
 		self.wndCash[i]:Show(false,true)
 	end
@@ -1951,15 +2159,15 @@ function LUI_Holdem:ShowTable()
                     if self.game.active == true then
                         -- Position Dealer Button
                         self.wndTable:FindChild("DealerButton"):SetAnchorPoints(unpack(self.buttons.positions[self.game.dealer].anchorPoints))
-                        self.wndTable:FindChild("DealerButton"):SetAnchorOffsets(unpack(self.buttons.positions[self.game.dealer].anchorOffsets))
+                        self.wndTable:FindChild("DealerButton"):SetAnchorOffsets(unpack(self:ScaleOffsets(self.buttons.positions[self.game.dealer].anchorOffsets)))
 
                         -- Position Small Blind Button
                         self.wndTable:FindChild("SmallBlindButton"):SetAnchorPoints(unpack(self.buttons.positions[self.game.small].anchorPoints))
-                        self.wndTable:FindChild("SmallBlindButton"):SetAnchorOffsets(unpack(self.buttons.positions[self.game.small].anchorOffsets))
+                        self.wndTable:FindChild("SmallBlindButton"):SetAnchorOffsets(unpack(self:ScaleOffsets(self.buttons.positions[self.game.small].anchorOffsets)))
 
                         -- Position Big Blind Button
                         self.wndTable:FindChild("BigBlindButton"):SetAnchorPoints(unpack(self.buttons.positions[self.game.big].anchorPoints))
-                        self.wndTable:FindChild("BigBlindButton"):SetAnchorOffsets(unpack(self.buttons.positions[self.game.big].anchorOffsets))
+                        self.wndTable:FindChild("BigBlindButton"):SetAnchorOffsets(unpack(self:ScaleOffsets(self.buttons.positions[self.game.big].anchorOffsets)))
 
                         -- Show Buttons
                         self.wndTable:FindChild("DealerButton"):Show(self.game.playerCount > 2)
@@ -2543,15 +2751,15 @@ function LUI_Holdem:StartRound(message)
 
     -- Position Dealer Button
     self.wndTable:FindChild("DealerButton"):SetAnchorPoints(unpack(self.buttons.positions[self.game.dealer].anchorPoints))
-    self.wndTable:FindChild("DealerButton"):SetAnchorOffsets(unpack(self.buttons.positions[self.game.dealer].anchorOffsets))
+    self.wndTable:FindChild("DealerButton"):SetAnchorOffsets(unpack(self:ScaleOffsets(self.buttons.positions[self.game.dealer].anchorOffsets)))
 
     -- Position Small Blind Button
     self.wndTable:FindChild("SmallBlindButton"):SetAnchorPoints(unpack(self.buttons.positions[self.game.small].anchorPoints))
-    self.wndTable:FindChild("SmallBlindButton"):SetAnchorOffsets(unpack(self.buttons.positions[self.game.small].anchorOffsets))
+    self.wndTable:FindChild("SmallBlindButton"):SetAnchorOffsets(unpack(self:ScaleOffsets(self.buttons.positions[self.game.small].anchorOffsets)))
 
     -- Position Big Blind Button
     self.wndTable:FindChild("BigBlindButton"):SetAnchorPoints(unpack(self.buttons.positions[self.game.big].anchorPoints))
-    self.wndTable:FindChild("BigBlindButton"):SetAnchorOffsets(unpack(self.buttons.positions[self.game.big].anchorOffsets))
+    self.wndTable:FindChild("BigBlindButton"):SetAnchorOffsets(unpack(self:ScaleOffsets(self.buttons.positions[self.game.big].anchorOffsets)))
 
 	-- Show Buttons
 	self.wndTable:FindChild("DealerButton"):Show(self.game.playerCount > 2)
@@ -3527,7 +3735,7 @@ function LUI_Holdem:GetCard()
         nCardIdx = math.random(#self.cards)
 		strCard = self.cards[nCardIdx].sprite
 		bValid = self.validcards[strCard]
-		Print(strCard .. ":" .. tostring(bValid))
+		--Print(strCard .. ":" .. tostring(bValid))
         if bValid == true then
 			self.validcards[strCard] = false
 			return nCardIdx
@@ -4603,8 +4811,8 @@ function LUI_Holdem:CheckButtons()
             btnRebuy:Show(true,true)
 
             -- Reposition Log Button
-            btnLog:SetAnchorPoints(1,0,1,1)
-            btnLog:SetAnchorOffsets(-420,5,-285,-5)
+            --btnLog:SetAnchorPoints(1,0,1,1)
+            --btnLog:SetAnchorOffsets(-420,5,-285,-5)
 
             if self.game.rebuy <= 2 then
                 if self.players[self.seat].rebuy and self.players[self.seat].rebuy >= self.game.rebuy then
@@ -4617,8 +4825,8 @@ function LUI_Holdem:CheckButtons()
             end
 		else
             -- Reposition Sitout Button
-			btnLog:SetAnchorPoints(1,0,1,1)
-            btnLog:SetAnchorOffsets(-280,5,-145,-5)
+			--btnLog:SetAnchorPoints(1,0,1,1)
+            --btnLog:SetAnchorOffsets(-280,5,-145,-5)
 		end
 	else
 		if self.game.host == self.name then
@@ -4723,6 +4931,26 @@ end
 -- #
 -- #########################################################################################################################################
 -- #########################################################################################################################################
+
+
+function LUI_Holdem:OnMiniToggle()
+	if self.settings["mini"] == true then
+		self:UpdateOffsets("Full")
+		self.settings["mini"] = false
+	else
+		self:UpdateOffsets("Mini")
+		self.settings["mini"] = true
+	end
+end
+
+function LUI_Holdem:UpdateOffsets(size)
+	if size == nil then return end
+	if size == "Full" then
+	--offsets
+	elseif size == "Mini" then
+	--offsets
+	end
+end
 
 function LUI_Holdem:SaveKey(name,key)
     local oldkey = 0
@@ -5257,6 +5485,17 @@ function LUI_Holdem:Crypt(str,k,inv)
         end
     end
     return enc;
+end
+
+---------------------------------------------------------------------------------------------------
+-- TableForm Functions
+---------------------------------------------------------------------------------------------------
+
+function LUI_Holdem:OnResize( wndHandler, wndControl )
+	local l,t,r,b = self.wndTable:GetAnchorOffsets()
+	self.UIScale = (r - l)/1400
+	self.settings["tablepos"] = {l,t,r,b}
+	self.settings["scale"] = self.UIScale
 end
 
 -----------------------------------------------------------------------------------------------
