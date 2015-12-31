@@ -606,6 +606,7 @@ function LUI_Holdem:OnLoad()
     Apollo.RegisterTimerHandler("LUI_Holdem_Wait", "OnWait", self)
     Apollo.RegisterTimerHandler("LUI_Holdem_Next", "OnNextPlayer", self)
     Apollo.RegisterTimerHandler("LUI_Holdem_Showdown", "OnShowdownTimer", self)
+	Apollo.RegisterTimerHandler("LUI_Holdem_TimedOut", "OnTimedOut", self)
 
 	self.broadcast = ApolloTimer.Create(30, true, "Broadcast", self)
 	self.broadcast:Stop()
@@ -1968,6 +1969,7 @@ function LUI_Holdem:BuildTable()
     --self.wndTable:SetSizingMinimum(1400, 959)
 	local l,t,r,b = self.wndTable:GetAnchorOffsets()
 	local offsets = {l,t,r,b}
+	if self.settings["tablepos"] == nil then self.settings["tablepos"] = {l,t,r,b} end
 	self.wndTable:SetAnchorOffsets(unpack(self.settings["tablepos"]))
 
 	if self.wndPlayers ~= nil then
@@ -1999,18 +2001,14 @@ function LUI_Holdem:BuildTable()
 
 	for i = 1, 10 do
 		-- Create Table Seats
-		self.wndSeats[i] = Apollo.LoadForm(self.xmlDoc, "PlayerSeat", self.wndTable:FindChild("Table"), self)
-		self.wndSeats[i]:SetAnchorPoints(unpack(self.seats[i].anchorPoints))
-		self.wndSeats[i]:SetAnchorOffsets(unpack(self:ScaleOffsets(self.seats[i].anchorOffsets)))
+		self.wndSeats[i] = self.wndTable:FindChild("PlayerSeat"..i)
 		self.wndSeats[i]:FindChild("Button"):SetData(i)
         self.wndSeats[i]:FindChild("JoinGame"):SetData(i)
         self.wndSeats[i]:FindChild("CashWindow"):Show(false,true)
 		self.wndSeats[i]:Show(false,true)
 
 		-- Create Player Frames
-		self.wndPlayers[i] = Apollo.LoadForm(self.xmlDoc, "PlayerItem:"..self.playerFrames[i].cardPosition, self.wndTable:FindChild("Table"), self)
-		self.wndPlayers[i]:SetAnchorPoints(unpack(self.playerFrames[i].anchorPoints))
-		self.wndPlayers[i]:SetAnchorOffsets(unpack(self:ScaleOffsets(self.playerFrames[i].anchorOffsets)))
+		self.wndPlayers[i] = self.wndTable:FindChild("PlayerItem"..i):FindChild("Top")
         self.wndPlayers[i]:FindChild("Glow"):Show(false,true)
 		self.wndPlayers[i]:FindChild("Active"):Show(false,true)
         self.wndPlayers[i]:FindChild("PlayerAction"):Show(false,true)
@@ -2019,9 +2017,7 @@ function LUI_Holdem:BuildTable()
 		self.wndPlayers[i]:Show(false,true)
 
 		-- Create Cash Items
-		self.wndCash[i] = Apollo.LoadForm(self.xmlDoc, "CashItem", self.wndTable:FindChild("Table"), self)
-		self.wndCash[i]:SetAnchorPoints(unpack(self.cash[i].anchorPoints))
-		self.wndCash[i]:SetAnchorOffsets(unpack(self:ScaleOffsets(self.cash[i].anchorOffsets)))
+		self.wndCash[i] = self.wndTable:FindChild("CashItem"..i)
         self.wndCash[i]:FindChild("CashWindow"):SetAmount(0,true)
 		self.wndCash[i]:Show(false,true)
 	end
@@ -3064,19 +3060,32 @@ function LUI_Holdem:OnTimerEnd()
     end
 
     if self.players[self.current].warned == true then
-        self.players[self.current].afk = true
+        --self.players[self.current].afk = true
     else
-        self.players[self.current].warned = true
+        --self.players[self.current].warned = true
     end
 
     if self.players[self.current].afk == true and self.current == self.seat then
-        self.wndTable:FindChild("BtnSitout"):SetCheck(true)
+        --self.wndTable:FindChild("BtnSitout"):SetCheck(true)
     end
 
-    if self.game.host == self.name then
-        self:OnPlayerAction("check")
+    if self.game.host == self.name and self.TimedOut == true then
+		self:OnPlayerAction("check")
+		--Apollo.CreateTimer("LUI_Holdem_TimedOut", 2, false)
     end
 end
+
+
+function LUI_Holdem:OnTimedOut()
+	if self.CheckForTimedOut == self.current then
+		Print("Player timed out, forcing check/fold")
+		self:OnPlayerAction("check")
+	else
+		Print("Avoided a last second action bug")
+	end
+	
+end
+
 
 function LUI_Holdem:OnPlayerAction(wndHandler, wndControl)
     self:ResetNav()
@@ -3294,6 +3303,8 @@ function LUI_Holdem:OnNextPlayer()
             table:Show(false,true)
         end
     end
+
+	self.CheckForTimedOut = self.current
 
     if self.seat ~= self.current then
        return
@@ -5202,11 +5213,11 @@ end
 
 function LUI_Holdem:ShowTimer()
     if not self.actionTimer then
-        self.actionTimer = ApolloTimer.Create(0.1, true, "OnBarTimer", self)
+        self.actionTimer = ApolloTimer.Create(0.2, true, "OnBarTimer", self)
     end
 
     self.actionTimer:Stop()
-    self.actionTimer:Set(0.1, true, "OnBarTimer")
+    self.actionTimer:Set(0.2, true, "OnBarTimer")
     self.actionTimer:Start()
 end
 
@@ -5215,11 +5226,16 @@ function LUI_Holdem:OnBarTimer()
         local diff = os.time() - self.players[self.current].timer
         self.players[self.current].remaining = self.game.actionTimer - diff
 
-        if self.players[self.current].remaining > 1 then
+        if self.players[self.current].remaining > 0 then
+			self.TimedOut = false
             self.wndPlayers[self.current]:FindChild("Bar"):SetMax(self.game.actionTimer)
             self.wndPlayers[self.current]:FindChild("Bar"):SetProgress(self.players[self.current].remaining)
             self.wndPlayers[self.current]:FindChild("Bar"):Show(true)
-        else
+        elseif self.players[self.current].remaining > -1 and self.current == self.seat then
+			self:ResetNav()
+        	self:UpdateNav(false)
+		else
+			self.TimedOut = true
             self.actionTimer:Stop()
             self.wndPlayers[self.current]:FindChild("Bar"):Show(false)
             self:OnTimerEnd()
