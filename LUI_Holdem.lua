@@ -28,7 +28,7 @@ function LUI_Holdem:new(o)
     o = o or {}
     setmetatable(o, self)
     self.__index = self
-    self.version = 1.2
+    self.version = 1.3
     self.defaults = {
     	["blinds"] = 100,
     	["cash"] = 10000000,
@@ -607,7 +607,9 @@ function LUI_Holdem:OnLoad()
     Apollo.RegisterTimerHandler("LUI_Holdem_Next", "OnNextPlayer", self)
     Apollo.RegisterTimerHandler("LUI_Holdem_Showdown", "OnShowdownTimer", self)
 	Apollo.RegisterTimerHandler("LUI_Holdem_TimedOut", "OnTimedOut", self)
-
+	Apollo.RegisterTimerHandler("ActionConfirmTimer", "OnActionConfirmTimer", self)
+	Apollo.RegisterTimerHandler("WarningTimer", "OnWarningTimer", self)
+	
 	self.broadcast = ApolloTimer.Create(30, true, "Broadcast", self)
 	self.broadcast:Stop()
 end
@@ -2001,14 +2003,14 @@ function LUI_Holdem:BuildTable()
 
 	for i = 1, 10 do
 		-- Create Table Seats
-		self.wndSeats[i] = self.wndTable:FindChild("PlayerSeat"..i)
+		self.wndSeats[i] = self.wndTable:FindChild("PlayerSeats"):FindChild("PlayerSeat"..i)
 		self.wndSeats[i]:FindChild("Button"):SetData(i)
         self.wndSeats[i]:FindChild("JoinGame"):SetData(i)
         self.wndSeats[i]:FindChild("CashWindow"):Show(false,true)
 		self.wndSeats[i]:Show(false,true)
 
 		-- Create Player Frames
-		self.wndPlayers[i] = self.wndTable:FindChild("PlayerItem"..i):FindChild("Top")
+		self.wndPlayers[i] = self.wndTable:FindChild("PlayerItems"):FindChild("PlayerItem"..i):FindChild("Top")
         self.wndPlayers[i]:FindChild("Glow"):Show(false,true)
 		self.wndPlayers[i]:FindChild("Active"):Show(false,true)
         self.wndPlayers[i]:FindChild("PlayerAction"):Show(false,true)
@@ -2017,9 +2019,26 @@ function LUI_Holdem:BuildTable()
 		self.wndPlayers[i]:Show(false,true)
 
 		-- Create Cash Items
-		self.wndCash[i] = self.wndTable:FindChild("CashItem"..i)
+		self.wndCash[i] = self.wndTable:FindChild("CashItems"):FindChild("CashItem"..i)
         self.wndCash[i]:FindChild("CashWindow"):SetAmount(0,true)
 		self.wndCash[i]:Show(false,true)
+		
+		-- Positioning buttons (easier than doing it in the xml, fuck houston)
+		local l,t,r,b
+		
+		l,t,r,b = self.wndTable:FindChild("DealerButtons"):FindChild("DealerButton"..i):GetAnchorPoints()
+		self.wndTable:FindChild("BigBlindButtons"):FindChild("BigBlindButton"..i):SetAnchorPoints( l,t,r,b )
+		self.wndTable:FindChild("SmallBlindButtons"):FindChild("SmallBlindButton"..i):SetAnchorPoints( l,t,r,b )
+		
+		l,t,r,b = self.wndTable:FindChild("DealerButtons"):FindChild("DealerButton"..i):GetAnchorOffsets()
+		self.wndTable:FindChild("BigBlindButtons"):FindChild("BigBlindButton"..i):SetAnchorOffsets( l,t,r,b )
+		self.wndTable:FindChild("SmallBlindButtons"):FindChild("SmallBlindButton"..i):SetAnchorOffsets( l,t,r,b )
+		
+		
+		-- Create Buttons
+		self.wndTable:FindChild("DealerButtons"):FindChild("DealerButton"..i):Show(false, true)
+		self.wndTable:FindChild("BigBlindButtons"):FindChild("BigBlindButton"..i):Show(false, true)
+		self.wndTable:FindChild("SmallBlindButtons"):FindChild("SmallBlindButton"..i):Show(false, true)
 	end
 
     -- Set Table Sprite
@@ -2040,11 +2059,6 @@ function LUI_Holdem:BuildTable()
 
 	-- Pot
 	self.wndTable:FindChild("Pot"):Show(false,true)
-
-	-- Buttons
-	self.wndTable:FindChild("DealerButton"):Show(false,true)
-	self.wndTable:FindChild("BigBlindButton"):Show(false,true)
-	self.wndTable:FindChild("SmallBlindButton"):Show(false,true)
 
 	-- Notification & Loading
 	self.wndTable:FindChild("Loading"):Show(false,true)
@@ -2153,22 +2167,10 @@ function LUI_Holdem:ShowTable()
                     self.wndPlayers[i]:Show(true)
 
                     if self.game.active == true then
-                        -- Position Dealer Button
-                        self.wndTable:FindChild("DealerButton"):SetAnchorPoints(unpack(self.buttons.positions[self.game.dealer].anchorPoints))
-                        self.wndTable:FindChild("DealerButton"):SetAnchorOffsets(unpack(self:ScaleOffsets(self.buttons.positions[self.game.dealer].anchorOffsets)))
-
-                        -- Position Small Blind Button
-                        self.wndTable:FindChild("SmallBlindButton"):SetAnchorPoints(unpack(self.buttons.positions[self.game.small].anchorPoints))
-                        self.wndTable:FindChild("SmallBlindButton"):SetAnchorOffsets(unpack(self:ScaleOffsets(self.buttons.positions[self.game.small].anchorOffsets)))
-
-                        -- Position Big Blind Button
-                        self.wndTable:FindChild("BigBlindButton"):SetAnchorPoints(unpack(self.buttons.positions[self.game.big].anchorPoints))
-                        self.wndTable:FindChild("BigBlindButton"):SetAnchorOffsets(unpack(self:ScaleOffsets(self.buttons.positions[self.game.big].anchorOffsets)))
-
                         -- Show Buttons
-                        self.wndTable:FindChild("DealerButton"):Show(self.game.playerCount > 2)
-                        self.wndTable:FindChild("SmallBlindButton"):Show(true)
-                        self.wndTable:FindChild("BigBlindButton"):Show(true)
+                        self.wndTable:FindChild("DealerButtons"):FindChild("DealerButton"..self.game.dealer):Show(self.game.playerCount > 2)
+                        self.wndTable:FindChild("SmallBlindButtons"):FindChild("SmallBlindButton"..self.game.small):Show(true)
+                        self.wndTable:FindChild("BigBlindButtons"):FindChild("BigBlindButton"..self.game.big):Show(true)
 
                         -- Update Active Player Icon & Border
                         for i = 1, 10 do
@@ -2501,17 +2503,17 @@ function LUI_Holdem:PlayerLeftTable(message)
                 -- Hide Dealer Button
                 if nextPlayer ~= 0 and self.game.dealer == i then
                     self.game.dealer = nextPlayer
-                    self.wndTable:FindChild("DealerButton"):Show(false,true)
+                    self.wndTable:FindChild("DealerButtons"):FindChild("DealerButton"..i):Show(false,true)
                 end
 
                 -- Hide Small Blind Button
                 if self.game.small == i then
-                    self.wndTable:FindChild("SmallBlindButton"):Show(false,true)
+                    self.wndTable:FindChild("SmallBlindButtons"):FindChild("SmallBlindButton"..i):Show(false,true)
                 end
 
                 -- Hide Big Blind Button
                 if self.game.big == i then
-                    self.wndTable:FindChild("BigBlindButton"):Show(false,true)
+                    self.wndTable:FindChild("BigBlindButtons"):FindChild("BigBlindButton"..i):Show(false,true)
                 end
 
                 -- Reset Cash
@@ -2745,22 +2747,15 @@ function LUI_Holdem:StartRound(message)
         self.players[i].cash = message.cash[i]
     end
 
-    -- Position Dealer Button
-    self.wndTable:FindChild("DealerButton"):SetAnchorPoints(unpack(self.buttons.positions[self.game.dealer].anchorPoints))
-    self.wndTable:FindChild("DealerButton"):SetAnchorOffsets(unpack(self:ScaleOffsets(self.buttons.positions[self.game.dealer].anchorOffsets)))
-
-    -- Position Small Blind Button
-    self.wndTable:FindChild("SmallBlindButton"):SetAnchorPoints(unpack(self.buttons.positions[self.game.small].anchorPoints))
-    self.wndTable:FindChild("SmallBlindButton"):SetAnchorOffsets(unpack(self:ScaleOffsets(self.buttons.positions[self.game.small].anchorOffsets)))
-
-    -- Position Big Blind Button
-    self.wndTable:FindChild("BigBlindButton"):SetAnchorPoints(unpack(self.buttons.positions[self.game.big].anchorPoints))
-    self.wndTable:FindChild("BigBlindButton"):SetAnchorOffsets(unpack(self:ScaleOffsets(self.buttons.positions[self.game.big].anchorOffsets)))
-
+	for i = 1, 10 do
+		self.wndTable:FindChild("DealerButtons"):FindChild("DealerButton"..i):Show(false, true)
+		self.wndTable:FindChild("SmallBlindButtons"):FindChild("SmallBlindButton"..i):Show(false, true)
+		self.wndTable:FindChild("BigBlindButtons"):FindChild("BigBlindButton"..i):Show(false, true)
+	end
 	-- Show Buttons
-	self.wndTable:FindChild("DealerButton"):Show(self.game.playerCount > 2)
-	self.wndTable:FindChild("SmallBlindButton"):Show(true)
-	self.wndTable:FindChild("BigBlindButton"):Show(true)
+	self.wndTable:FindChild("DealerButtons"):FindChild("DealerButton"..self.game.dealer):Show(self.game.playerCount > 2)
+	self.wndTable:FindChild("SmallBlindButtons"):FindChild("SmallBlindButton"..self.game.small):Show(true)
+	self.wndTable:FindChild("BigBlindButtons"):FindChild("BigBlindButton"..self.game.big):Show(true)
 
 	-- Reset Game Data
     self.game.pot = 0
@@ -3055,8 +3050,9 @@ end
 
 function LUI_Holdem:OnTimerEnd()
     if self.current == self.seat then
-        self:ResetNav()
-        self:UpdateNav(false)
+		Apollo.CreateTimer("LUI_Holdem_TimedOut", 2, false)
+	elseif self.game.host == self.name then
+		Apollo.CreateTimer("LUI_Holdem_TimedOut", 5, false)
     end
 
     if self.players[self.current].warned == true then
@@ -3070,24 +3066,26 @@ function LUI_Holdem:OnTimerEnd()
     end
 
     if self.game.host == self.name and self.TimedOut == true then
-		self:OnPlayerAction("check")
+		--self:OnPlayerAction("check")
 		--Apollo.CreateTimer("LUI_Holdem_TimedOut", 2, false)
     end
 end
 
 
 function LUI_Holdem:OnTimedOut()
-	if self.CheckForTimedOut == self.current then
-		Print("Player timed out, forcing check/fold")
+	if self.TimedOut and not self.ActionTaken then
+		Print("Out of time, forcing check/fold")
 		self:OnPlayerAction("check")
-	else
-		Print("Avoided a last second action bug")
 	end
 	
 end
 
 
 function LUI_Holdem:OnPlayerAction(wndHandler, wndControl)
+	if self.ActionTaken == true then return end
+	Apollo.StopTimer("LUI_Holdem_TimedOut")
+	self.ActionTaken = true
+	self.TimedOut = false
     self:ResetNav()
     self:UpdateNav(false)
 
@@ -3122,21 +3120,35 @@ function LUI_Holdem:OnPlayerAction(wndHandler, wndControl)
         -- Player was set to afk because of inactivity
         action = "fold"
     end
+	
+	if self.SavedMessage ~= nil then return end
 
     local tMessage = {
-        action = action,
-        forced = forced,
-        amount = self.wndTable:FindChild("BetSetting"):FindChild("CashWindow"):GetAmount()
+		seat	= self.seat,
+        action 	= action,
+        forced 	= forced,
+        amount 	= self.wndTable:FindChild("BetSetting"):FindChild("CashWindow"):GetAmount()
     }
+	Apollo.CreateTimer("ActionConfirmTimer", 0.5, false)
+	self.SavedMessage = tMessage
+	
+end
 
-    self:Send(tMessage,true)
+function LUI_Holdem:OnActionConfirmTimer()
+	local tMessage = self.SavedMessage
+	if tMessage == nil then return end
+	
+	self:Send(tMessage,true)
 
     if self.game.conn == "ICComm" then
         self:OnAction(tMessage)
     end
+	self.SavedMessage = nil
+
 end
 
 function LUI_Holdem:OnAction(message)
+	Apollo.StopTimer("LUI_Holdem_TimedOut")
     local cash = self.players[self.current].cash
     local text = message.action
     local color = message.action
@@ -3304,11 +3316,13 @@ function LUI_Holdem:OnNextPlayer()
         end
     end
 
-	self.CheckForTimedOut = self.current
-
     if self.seat ~= self.current then
        return
     end
+
+	if self.settings["sound"] then
+		Sound.Play(195)
+	end
 
     local cash = self.players[self.current].cash
 
@@ -4734,9 +4748,11 @@ function LUI_Holdem:OnStop(message)
     }
 
     -- hide stuff
-    self.wndTable:FindChild("DealerButton"):Show(false,true)
-    self.wndTable:FindChild("SmallBlindButton"):Show(false,true)
-    self.wndTable:FindChild("BigBlindButton"):Show(false,true)
+	for i = 1, 10 do
+    	self.wndTable:FindChild("DealerButtons"):FindChild("DealerButton"..i):Show(false,true)
+    	self.wndTable:FindChild("SmallBlindButtons"):FindChild("SmallBlindButton"..i):Show(false,true)
+    	self.wndTable:FindChild("BigBlindButtons"):FindChild("BigBlindButton"..i):Show(false,true)
+	end
 
     self.wndTable:FindChild("Pot"):Show(false,true)
     self.wndTable:FindChild("PotWindow"):SetAmount(0)
@@ -5211,11 +5227,27 @@ function LUI_Holdem:GetCard()
 end
 ]]
 
+function LUI_Holdem:OnWarningTimer()
+	self:WarningTimer()
+end
+--[[
+function LUI_Holdem:WarningTimer()
+	self.WarningCounter = self.WarningCounter + 1
+	if self.settings["sound"] and self.current == self.seat then
+		Sound.Play(185)
+	end
+	if self.WarningCounter > 4 then
+		Apollo.StopTimer("WarningTimer")
+	end
+end
+]]
 function LUI_Holdem:ShowTimer()
     if not self.actionTimer then
         self.actionTimer = ApolloTimer.Create(0.2, true, "OnBarTimer", self)
     end
 
+	self.ActionTaken = false
+	self.TimeWarning = 4
     self.actionTimer:Stop()
     self.actionTimer:Set(0.2, true, "OnBarTimer")
     self.actionTimer:Start()
@@ -5223,10 +5255,19 @@ end
 
 function LUI_Holdem:OnBarTimer()
     if self.current and self.wndPlayers[self.current] and self.players[self.current].active == true then
+		local warn
         local diff = os.time() - self.players[self.current].timer
         self.players[self.current].remaining = self.game.actionTimer - diff
+		if self.players[self.current].remaining < 4.2 and self.current == self.seat then
+			warn = math.floor(self.players[self.current].remaining)
+			Print(warn.."<"..self.TimeWarning)
+			if warn < self.TimeWarning and self.settings["sound"] then
+				Sound.Play(185)
+				self.TimeWarning = warn
+			end			
+		end
 
-        if self.players[self.current].remaining > 0 then
+        if self.players[self.current].remaining > .2 then
 			self.TimedOut = false
             self.wndPlayers[self.current]:FindChild("Bar"):SetMax(self.game.actionTimer)
             self.wndPlayers[self.current]:FindChild("Bar"):SetProgress(self.players[self.current].remaining)
@@ -5234,6 +5275,7 @@ function LUI_Holdem:OnBarTimer()
         elseif self.players[self.current].remaining > -1 and self.current == self.seat then
 			self:ResetNav()
         	self:UpdateNav(false)
+			self.TimedOut = true
 		else
 			self.TimedOut = true
             self.actionTimer:Stop()
