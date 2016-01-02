@@ -1732,7 +1732,7 @@ function LUI_Holdem:OnCreateGame()
 	local playerRealm = GameLib.GetRealmName()
 	local playerFaction = GameLib.GetPlayerUnit():GetFaction()
 	local maxCurrency = GameLib.GetPlayerCurrency():GetAmount()
-	local nAmount = self.wndLobby:FindChild("CashWindow"):GetAmount()
+	local nAmount = self.wndLobby:FindChild("NewGame"):FindChild("CashWindow"):GetAmount()
 
 	if password ~= nil and password ~= "" then
 		locked = true
