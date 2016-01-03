@@ -2808,7 +2808,7 @@ function LUI_Holdem:StartRound(message)
 		self:Shuffle()
 	end
 
-    local initialPet = self.game.blind
+    local initialPet = self.game.blind -- Meow?
 
 	for _,player in pairs(self.game.players) do
 		-- Put in Big Blind
@@ -2817,7 +2817,7 @@ function LUI_Holdem:StartRound(message)
 
             if bigBlind > self.players[player].cash then
                 bigBlind = self.players[player].cash
-                initialPet = self.players[player].cash
+                initialPet = self.players[player].cash -- Woof!
             end
 
 			self:PutMoneyIn(player,bigBlind)
