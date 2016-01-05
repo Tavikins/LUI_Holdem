@@ -28,7 +28,7 @@ function LUI_Holdem:new(o)
     o = o or {}
     setmetatable(o, self)
     self.__index = self
-    self.version = 1.3
+    self.version = 1.5
     self.defaults = {
     	["blinds"] = 100,
     	["cash"] = 10000000,
@@ -2808,7 +2808,7 @@ function LUI_Holdem:StartRound(message)
 		self:Shuffle()
 	end
 
-    local initialPet = self.game.blind -- Meow?
+    local initialPet = self.game.blind
 
 	for _,player in pairs(self.game.players) do
 		-- Put in Big Blind
@@ -2817,7 +2817,7 @@ function LUI_Holdem:StartRound(message)
 
             if bigBlind > self.players[player].cash then
                 bigBlind = self.players[player].cash
-                initialPet = self.players[player].cash -- Woof!
+                initialPet = self.players[player].cash
             end
 
 			self:PutMoneyIn(player,bigBlind)
