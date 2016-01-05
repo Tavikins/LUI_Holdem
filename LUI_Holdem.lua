@@ -2922,6 +2922,7 @@ function LUI_Holdem:OnReceiveCards(message)
     for _,player in pairs(message.cards) do
         if self.seat and self.seat == player.seat then
             for k,v in pairs(player.cards) do
+				--Print(tostring(k)..":"..tostring(self.cards[tonumber(self:Crypt(v,self.key,true))].sprite))
                 self.wndPlayers[player.seat]:FindChild("CardHolder"):FindChild("Card"..tostring(k)):SetSprite(self.cards[tonumber(self:Crypt(v,self.key,true))].sprite)
                 self.wndPlayers[player.seat]:FindChild("CardHolder"):FindChild("Card"..tostring(k)):Show(true,true)
             end
@@ -5260,7 +5261,7 @@ function LUI_Holdem:OnBarTimer()
         self.players[self.current].remaining = self.game.actionTimer - diff
 		if self.players[self.current].remaining < 4.2 and self.current == self.seat then
 			warn = math.floor(self.players[self.current].remaining)
-			Print(warn.."<"..self.TimeWarning)
+			--Print(warn.."<"..self.TimeWarning)
 			if warn < self.TimeWarning and self.settings["sound"] then
 				Sound.Play(185)
 				self.TimeWarning = warn
