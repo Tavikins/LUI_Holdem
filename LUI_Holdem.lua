@@ -28,7 +28,70 @@ function LUI_Holdem:new(o)
     o = o or {}
     setmetatable(o, self)
     self.__index = self
-    self.version = 1.3
+    return o
+end
+
+function LUI_Holdem:Init()
+    local tDependencies = {
+        "ChatLog",
+        "BetterChatLog",
+        "ChatFixed",
+        "ImprovedChatLog",
+        "FixedChatLog",
+        "ChatAdvanced",
+        "ChatSplitter",
+        "ChatLinks"
+    }
+
+	Apollo.RegisterAddon(self, nil, nil, tDependencies)
+end
+
+function LUI_Holdem:OnDependencyError(strDependency, strError)
+    -- ignore dependency errors, because we only did set dependecies to ensure to get loaded after the specified addons
+    return true
+end
+
+function LUI_Holdem:OnLoad()
+	Apollo.LoadSprites("cards.xml")
+	Apollo.LoadSprites("tables.xml")
+	Apollo.LoadSprites("sprites.xml")
+
+	self.xmlDoc = XmlDoc.CreateFromFile("LUI_Holdem.xml")
+	self.xmlDoc:RegisterCallback("OnDocLoaded", self)
+
+	Apollo.RegisterEventHandler("CharacterCreated", "OnCharacterCreated", self)
+	Apollo.RegisterEventHandler("InterfaceMenuListHasLoaded", "OnInterfaceMenuListHasLoaded", self)
+	Apollo.RegisterEventHandler("ToggleLUIHoldem", "OnToggleMenu", self)
+	Apollo.RegisterEventHandler("GuildRoster", "OnGuildRoster", self)
+	Apollo.RegisterEventHandler("UnitEnteredCombat", "OnEnteredCombat", self)
+	Apollo.RegisterEventHandler("ChatMessage", "OnChatMessage", self)
+    Apollo.RegisterEventHandler("PlayerCurrencyChanged", "OnPlayerCurrencyChanged", self)
+
+	Apollo.RegisterTimerHandler("LUI_Holdem_Connect", "Connect", self)
+	Apollo.RegisterTimerHandler("LUI_Holdem_Connect_Game", "ConnectToHost", self)
+	Apollo.RegisterTimerHandler("LUI_Holdem_JoinGlobal", "JoinGlobalChannel", self)
+    Apollo.RegisterTimerHandler("LUI_Holdem_JoinChat", "JoinChatChannel", self)
+    Apollo.RegisterTimerHandler("LUI_Holdem_JoinGame", "OnJoinWait", self)
+	Apollo.RegisterTimerHandler("LUI_Holdem_Join", "JoinChannel", self)
+	Apollo.RegisterTimerHandler("LUI_Holdem_Notification", "OnNotification", self)
+    Apollo.RegisterTimerHandler("LUI_Holdem_Alert", "OnAlert", self)
+    Apollo.RegisterTimerHandler("LUI_Holdem_Wait", "OnWait", self)
+    Apollo.RegisterTimerHandler("LUI_Holdem_Next", "OnNextPlayer", self)
+    Apollo.RegisterTimerHandler("LUI_Holdem_Showdown", "OnShowdownTimer", self)
+	Apollo.RegisterTimerHandler("LUI_Holdem_TimedOut", "OnTimedOut", self)
+	Apollo.RegisterTimerHandler("ActionConfirmTimer", "OnActionConfirmTimer", self)
+	Apollo.RegisterTimerHandler("WarningTimer", "OnWarningTimer", self)
+	
+	self.broadcast = ApolloTimer.Create(30, true, "Broadcast", self)
+	self.broadcast:Stop()
+end
+
+function LUI_Holdem:OnDocLoaded()
+	if self.xmlDoc == nil then
+		return
+	end
+	
+	self.version = 1.3
     self.defaults = {
     	["blinds"] = 100,
     	["cash"] = 10000000,
@@ -556,68 +619,7 @@ function LUI_Holdem:new(o)
     		anchorOffsets = {0,0,0,0},
     	},
 	}
-    return o
-end
 
-function LUI_Holdem:Init()
-    local tDependencies = {
-        "ChatLog",
-        "BetterChatLog",
-        "ChatFixed",
-        "ImprovedChatLog",
-        "FixedChatLog",
-        "ChatAdvanced",
-        "ChatSplitter",
-        "ChatLinks"
-    }
-
-	Apollo.RegisterAddon(self, nil, nil, tDependencies)
-end
-
-function LUI_Holdem:OnDependencyError(strDependency, strError)
-    -- ignore dependency errors, because we only did set dependecies to ensure to get loaded after the specified addons
-    return true
-end
-
-function LUI_Holdem:OnLoad()
-	Apollo.LoadSprites("cards.xml")
-	Apollo.LoadSprites("tables.xml")
-	Apollo.LoadSprites("sprites.xml")
-
-	self.xmlDoc = XmlDoc.CreateFromFile("LUI_Holdem.xml")
-	self.xmlDoc:RegisterCallback("OnDocLoaded", self)
-
-	Apollo.RegisterEventHandler("CharacterCreated", "OnCharacterCreated", self)
-	Apollo.RegisterEventHandler("InterfaceMenuListHasLoaded", "OnInterfaceMenuListHasLoaded", self)
-	Apollo.RegisterEventHandler("ToggleLUIHoldem", "OnToggleMenu", self)
-	Apollo.RegisterEventHandler("GuildRoster", "OnGuildRoster", self)
-	Apollo.RegisterEventHandler("UnitEnteredCombat", "OnEnteredCombat", self)
-	Apollo.RegisterEventHandler("ChatMessage", "OnChatMessage", self)
-    Apollo.RegisterEventHandler("PlayerCurrencyChanged", "OnPlayerCurrencyChanged", self)
-
-	Apollo.RegisterTimerHandler("LUI_Holdem_Connect", "Connect", self)
-	Apollo.RegisterTimerHandler("LUI_Holdem_Connect_Game", "ConnectToHost", self)
-	Apollo.RegisterTimerHandler("LUI_Holdem_JoinGlobal", "JoinGlobalChannel", self)
-    Apollo.RegisterTimerHandler("LUI_Holdem_JoinChat", "JoinChatChannel", self)
-    Apollo.RegisterTimerHandler("LUI_Holdem_JoinGame", "OnJoinWait", self)
-	Apollo.RegisterTimerHandler("LUI_Holdem_Join", "JoinChannel", self)
-	Apollo.RegisterTimerHandler("LUI_Holdem_Notification", "OnNotification", self)
-    Apollo.RegisterTimerHandler("LUI_Holdem_Alert", "OnAlert", self)
-    Apollo.RegisterTimerHandler("LUI_Holdem_Wait", "OnWait", self)
-    Apollo.RegisterTimerHandler("LUI_Holdem_Next", "OnNextPlayer", self)
-    Apollo.RegisterTimerHandler("LUI_Holdem_Showdown", "OnShowdownTimer", self)
-	Apollo.RegisterTimerHandler("LUI_Holdem_TimedOut", "OnTimedOut", self)
-	Apollo.RegisterTimerHandler("ActionConfirmTimer", "OnActionConfirmTimer", self)
-	Apollo.RegisterTimerHandler("WarningTimer", "OnWarningTimer", self)
-	
-	self.broadcast = ApolloTimer.Create(30, true, "Broadcast", self)
-	self.broadcast:Stop()
-end
-
-function LUI_Holdem:OnDocLoaded()
-	if self.xmlDoc == nil then
-		return
-	end
 
     -- Load Defaults
     self:LoadDefaults()
@@ -2921,10 +2923,15 @@ function LUI_Holdem:OnReceiveCards(message)
     -- Show Player Cards
     for _,player in pairs(message.cards) do
         if self.seat and self.seat == player.seat then
-            for k,v in pairs(player.cards) do
-                self.wndPlayers[player.seat]:FindChild("CardHolder"):FindChild("Card"..tostring(k)):SetSprite(self.cards[tonumber(self:Crypt(v,self.key,true))].sprite)
-                self.wndPlayers[player.seat]:FindChild("CardHolder"):FindChild("Card"..tostring(k)):Show(true,true)
-            end
+            for k,v in ipairs(player.cards) do
+				if v ~= nil and k ~= nil then
+					local deltcard = tostring("Card"..k)
+					local spritecard = tostring(self.cards[tonumber(self:Crypt(v,self.key,true))].sprite)
+					--Print(tostring(k)..":"..tostring(self.cards[tonumber(self:Crypt(v,self.key,true))].sprite))
+       	    	     self.wndPlayers[player.seat]:FindChild("CardHolder"):FindChild(deltcard):SetSprite(spritecard)
+       	    	     self.wndPlayers[player.seat]:FindChild("CardHolder"):FindChild(deltcard):Show(true,true)
+            	end
+			end
 
             self.wndPlayers[player.seat]:FindChild("CardHolder"):Show(true,true)
             self.wndPlayers[player.seat]:FindChild("CardHolder_Back"):Show(false,true)
@@ -2943,10 +2950,13 @@ end
 function LUI_Holdem:OnReceiveFlop(message)
     self.wndTable:FindChild("CardHolder"):Show(true,true)
 
-    for k,v in pairs(message.cards) do
-        self.wndTable:FindChild("CardHolder"):FindChild("Card"..tostring(k)):SetSprite(self.cards[v].sprite)
-        self.wndTable:FindChild("CardHolder"):FindChild("Card"..tostring(k)):Show(true)
-    end
+    for k,v in ipairs(message.cards) do
+		if v ~= nil and k ~= nil then
+			local deltcard = tostring("Card"..k)
+        	self.wndTable:FindChild("CardHolder"):FindChild(deltcard):SetSprite(self.cards[v].sprite)
+        	self.wndTable:FindChild("CardHolder"):FindChild(deltcard):Show(true)
+    	end
+	end
 
     if self.game.showdown and self.game.showdown == true then
         self:OnShowdown()
@@ -5260,7 +5270,7 @@ function LUI_Holdem:OnBarTimer()
         self.players[self.current].remaining = self.game.actionTimer - diff
 		if self.players[self.current].remaining < 4.2 and self.current == self.seat then
 			warn = math.floor(self.players[self.current].remaining)
-			Print(warn.."<"..self.TimeWarning)
+			--Print(warn.."<"..self.TimeWarning)
 			if warn < self.TimeWarning and self.settings["sound"] then
 				Sound.Play(185)
 				self.TimeWarning = warn
