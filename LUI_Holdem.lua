@@ -84,12 +84,6 @@ function LUI_Holdem:OnLoad()
 	
 	self.broadcast = ApolloTimer.Create(30, true, "Broadcast", self)
 	self.broadcast:Stop()
-end
-
-function LUI_Holdem:OnDocLoaded()
-	if self.xmlDoc == nil then
-		return
-	end
 	
 	self.version = 1.3
     self.defaults = {
@@ -100,12 +94,11 @@ function LUI_Holdem:OnDocLoaded()
     self.keys = {}
 	self.guild = {}
     self.settings = {
-        ["hide"] = true,
-        ["combat"] = true,
+        ["hide"] = false,
+        ["combat"] = false,
         ["alert"] = true,
         ["sound"] = true,
-        ["check"] = false,
-		["mini"] = false,
+        ["check"] = true,
     }
     self.game = {}
     self.cards = {}
@@ -199,428 +192,23 @@ function LUI_Holdem:OnDocLoaded()
     	},
 	}
 
-    self.players = {
-        [1] = {
-            active = false
-        },
-        [2] = {
-            active = false
-        },
-        [3] = {
-            active = false
-        },
-        [4] = {
-            active = false
-        },
-        [5] = {
-            active = false
-        },
-        [6] = {
-            active = false
-        },
-        [7] = {
-            active = false
-        },
-        [8] = {
-            active = false
-        },
-        [9] = {
-            active = false
-        },
-        [10] = {
-            active = false
-        },
-    }
-    self.playerFrames = {
-    	[1] = {
-    		anchorPoints = {0.6,0,0.6,0},
-    		anchorOffsets = {-134,0,126,180},
-    		cardPosition = "Top",
-    	},
-    	[2] = {
-    		anchorPoints = {1,0,1,0},
-    		anchorOffsets = {-400,70,-140,250},
-    		cardPosition = "Top",
-    	},
-    	[3] = {
-    		anchorPoints = {1,0.5,1,0.5},
-    		anchorOffsets = {-270,-110,-10,70},
-    		cardPosition = "Top",
-    	},
-    	[4] = {
-    		anchorPoints = {1,1,1,1},
-    		anchorOffsets = {-400,-250,-140,-70},
-    		cardPosition = "Top",
-    	},
-    	[5] = {
-    		anchorPoints = {0.6,1,0.6,1},
-    		anchorOffsets = {-134,-180,126,0},
-    		cardPosition = "Top",
-    	},
-    	[6] = {
-    		anchorPoints = {0.4,1,0.4,1},
-    		anchorOffsets = {-126,-180,134,0},
-    		cardPosition = "Top",
-    	},
-    	[7] = {
-    		anchorPoints = {0,1,0,1},
-    		anchorOffsets = {140,-250,400,-70},
-    		cardPosition = "Top",
-    	},
-    	[8] = {
-    		anchorPoints = {0,0.5,0,0.5},
-    		anchorOffsets = {10,-110,270,70},
-    		cardPosition = "Top",
-    	},
-    	[9] = {
-    		anchorPoints = {0,0,0,0},
-    		anchorOffsets = {140,70,400,250},
-    		cardPosition = "Top",
-    	},
-    	[10] = {
-    		anchorPoints = {0.4,0,0.4,0},
-    		anchorOffsets = {-126,0,134,180},
-    		cardPosition = "Top",
-    	},
-	}
+    self.players = {}
+	for i = 1, 10 do
+		self.players[i] = { active = false }
+	end
+	
+	self.cash = {}
+	for i = 6, 10 do
+		self.cash[i] = { grow = true }
+	end
+	
+end
 
-	self.buttons = {
-		colors = {
-			red = "xkcdDullRed",
-			blue = "UI_WindowTextCraftingBlueResistor",
-			yellow = "xkcdDullYellow",
-		},
-		positions = {
-			[1] = {
-                anchorPoints = {0.55,0.15,0.55,0.15},
-                anchorOffsets = {-47,0,-11,36},
-            },
-            [2] = {
-                anchorPoints = {0.8,0.35,0.8,0.35},
-                anchorOffsets = {-98,-57,-62,-21},
-            },
-            [3] = {
-                anchorPoints = {0.8,0.5,0.8,0.5},
-                anchorOffsets = {-32,-18,4,18},
-            },
-            [4] = {
-                anchorPoints = {0.8,0.65,0.8,0.65},
-                anchorOffsets = {-108,31,-72,67},
-            },
-            [5] = {
-                anchorPoints = {0.55,0.8,0.55,0.8},
-                anchorOffsets = {-47,-36,-11,0},
-            },
-            [6] = {
-                anchorPoints = {0.45,0.8,0.45,0.8},
-                anchorOffsets = {11,-36,47,0},
-            },
-            [7] = {
-                anchorPoints = {0.2,0.65,0.2,0.65},
-                anchorOffsets = {72,31,108,67},
-            },
-            [8] = {
-                anchorPoints = {0.2,0.5,0.2,0.5},
-                anchorOffsets = {-4,-18,32,18},
-            },
-            [9] = {
-                anchorPoints = {0.2,0.35,0.2,0.35},
-                anchorOffsets = {72,-67,-108,-31},
-            },
-            [10] = {
-                anchorPoints = {0.45,0.15,0.45,0.15},
-                anchorOffsets = {11,0,47,36},
-            }
-		}
-	}
-
-	self.cash = {
-		[1] = {
-    		anchorPoints = {0.6,0.35,0.6,0.35},
-    		anchorOffsets = {-134,-45,-4,-15},
-    	},
-    	[2] = {
-    		anchorPoints = {0.75,0.35,0.75,0.35},
-    		anchorOffsets = {-205,-15,-45,15},
-    	},
-    	[3] = {
-    		anchorPoints = {0.75,0.5,0.75,0.5},
-    		anchorOffsets = {-155,-15,5,15},
-    	},
-    	[4] = {
-    		anchorPoints = {0.75,0.65,0.75,0.65},
-    		anchorOffsets = {-205,-15,-45,15},
-    	},
-    	[5] = {
-    		anchorPoints = {0.6,0.65,0.6,0.65},
-    		anchorOffsets = {-134,16,-4,46},
-    	},
-    	[6] = {
-    		anchorPoints = {0.4,0.65,0.4,0.65},
-    		anchorOffsets = {-86,16,34,46},
-            grow = true,
-    	},
-    	[7] = {
-    		anchorPoints = {0.25,0.65,0.25,0.65},
-    		anchorOffsets = {-55,-15,80,15},
-            grow = true,
-    	},
-    	[8] = {
-    		anchorPoints = {0.25,0.5,0.25,0.5},
-    		anchorOffsets = {-85,-15,30,15},
-            grow = true,
-    	},
-    	[9] = {
-    		anchorPoints = {0.25,0.35,0.25,0.35},
-    		anchorOffsets = {-55,-15,80,15},
-            grow = true,
-    	},
-    	[10] = {
-    		anchorPoints = {0.4,0.35,0.4,0.35},
-    		anchorOffsets = {-86,-45,34,-15},
-            grow = true,
-    	},
-	}
-
-	self.seats = {
-    	[1] = {
-    		anchorPoints = {0.6,0,0.6,0},
-    		anchorOffsets = {-74,90,76,134},
-    	},
-    	[2] = {
-    		anchorPoints = {1,0,1,0},
-    		anchorOffsets = {-340,130,-190,174},
-    	},
-    	[3] = {
-    		anchorPoints = {1,0.5,1,0.5},
-    		anchorOffsets = {-260,-22,-110,22},
-    	},
-    	[4] = {
-    		anchorPoints = {1,1,1,1},
-    		anchorOffsets = {-340,-174,-190,-130},
-    	},
-    	[5] = {
-    		anchorPoints = {0.6,1,0.6,1},
-    		anchorOffsets = {-74,-134,76,-90},
-    	},
-    	[6] = {
-    		anchorPoints = {0.4,1,0.4,1},
-    		anchorOffsets = {-76,-134,74,-90},
-    	},
-    	[7] = {
-    		anchorPoints = {0,1,0,1},
-    		anchorOffsets = {190,-174,340,-130},
-    	},
-    	[8] = {
-    		anchorPoints = {0,0.5,0,0.5},
-    		anchorOffsets = {110,-22,260,22},
-    	},
-    	[9] = {
-    		anchorPoints = {0,0,0,0},
-    		anchorOffsets = {190,130,340,174},
-    	},
-    	[10] = {
-    		anchorPoints = {0.4,0,0.4,0},
-    		anchorOffsets = {-76,90,74,134},
-    	},
-	}
-
-    self.playerFramesMini = {
-    	[1] = {
-    		anchorPoints = {0.6,0,0.6,0},
-    		anchorOffsets = {-134,0,126,180},
-    		cardPosition = "Top",
-    	},
-    	[2] = {
-    		anchorPoints = {1,0,1,0},
-    		anchorOffsets = {-400,70,-140,250},
-    		cardPosition = "Top",
-    	},
-    	[3] = {
-    		anchorPoints = {1,0.5,1,0.5},
-    		anchorOffsets = {-270,-110,-10,70},
-    		cardPosition = "Top",
-    	},
-    	[4] = {
-    		anchorPoints = {1,1,1,1},
-    		anchorOffsets = {-400,-250,-140,-70},
-    		cardPosition = "Top",
-    	},
-    	[5] = {
-    		anchorPoints = {0.6,1,0.6,1},
-    		anchorOffsets = {-134,-180,126,0},
-    		cardPosition = "Top",
-    	},
-    	[6] = {
-    		anchorPoints = {0.4,1,0.4,1},
-    		anchorOffsets = {-126,-180,134,0},
-    		cardPosition = "Top",
-    	},
-    	[7] = {
-    		anchorPoints = {0,1,0,1},
-    		anchorOffsets = {140,-250,400,-70},
-    		cardPosition = "Top",
-    	},
-    	[8] = {
-    		anchorPoints = {0,0.5,0,0.5},
-    		anchorOffsets = {10,-110,270,70},
-    		cardPosition = "Top",
-    	},
-    	[9] = {
-    		anchorPoints = {0,0,0,0},
-    		anchorOffsets = {140,70,400,250},
-    		cardPosition = "Top",
-    	},
-    	[10] = {
-    		anchorPoints = {0.4,0,0.4,0},
-    		anchorOffsets = {-126,0,134,180},
-    		cardPosition = "Top",
-    	},
-	}
-
-	--H:491.2, W:800
-	self.buttonsMini = {
-		colors = {
-			red = "xkcdDullRed",
-			blue = "UI_WindowTextCraftingBlueResistor",
-			yellow = "xkcdDullYellow",
-		},
-		positions = {
-			[1] = {
-                anchorPoints = {0.492,0.15,0.687,0.223},
-                anchorOffsets = {0,0,0,0},
-            },
-            [2] = {
-                anchorPoints = {0.8,0.35,0.8,0.35},
-                anchorOffsets = {-98,-57,-62,-21},
-            },
-            [3] = {
-                anchorPoints = {0.8,0.5,0.8,0.5},
-                anchorOffsets = {-32,-18,4,18},
-            },
-            [4] = {
-                anchorPoints = {0.8,0.65,0.8,0.65},
-                anchorOffsets = {-108,31,-72,67},
-            },
-            [5] = {
-                anchorPoints = {0.492,0.8,0.687,0.8},
-                anchorOffsets = {0,-36,0,0},
-            },
-            [6] = {
-                anchorPoints = {0.45,0.8,0.45,0.8},
-                anchorOffsets = {11,-36,47,0},
-            },
-            [7] = {
-                anchorPoints = {0.2,0.65,0.2,0.65},
-                anchorOffsets = {72,31,108,67},
-            },
-            [8] = {
-                anchorPoints = {0.2,0.5,0.2,0.5},
-                anchorOffsets = {-4,-18,32,18},
-            },
-            [9] = {
-                anchorPoints = {0.2,0.35,0.2,0.35},
-                anchorOffsets = {72,-67,-108,-31},
-            },
-            [10] = {
-                anchorPoints = {0.45,0.15,0.45,0.223},
-                anchorOffsets = {11,0,47,0},
-            }
-		}
-	}
-
-	self.cashMini = {
-		[1] = {
-    		anchorPoints = {0.6,0.35,0.6,0.35},
-    		anchorOffsets = {-134,-45,-4,-15},
-    	},
-    	[2] = {
-    		anchorPoints = {0.75,0.35,0.75,0.35},
-    		anchorOffsets = {-205,-15,-45,15},
-    	},
-    	[3] = {
-    		anchorPoints = {0.75,0.5,0.75,0.5},
-    		anchorOffsets = {-155,-15,5,15},
-    	},
-    	[4] = {
-    		anchorPoints = {0.75,0.65,0.75,0.65},
-    		anchorOffsets = {-205,-15,-45,15},
-    	},
-    	[5] = {
-    		anchorPoints = {0.6,0.65,0.6,0.65},
-    		anchorOffsets = {-134,16,-4,46},
-    	},
-    	[6] = {
-    		anchorPoints = {0.4,0.65,0.4,0.65},
-    		anchorOffsets = {-86,16,34,46},
-            grow = true,
-    	},
-    	[7] = {
-    		anchorPoints = {0.25,0.65,0.25,0.65},
-    		anchorOffsets = {-55,-15,80,15},
-            grow = true,
-    	},
-    	[8] = {
-    		anchorPoints = {0.25,0.5,0.25,0.5},
-    		anchorOffsets = {-85,-15,30,15},
-            grow = true,
-    	},
-    	[9] = {
-    		anchorPoints = {0.25,0.35,0.25,0.35},
-    		anchorOffsets = {-55,-15,80,15},
-            grow = true,
-    	},
-    	[10] = {
-    		anchorPoints = {0.4,0.35,0.4,0.35},
-    		anchorOffsets = {-86,-45,34,-15},
-            grow = true,
-    	},
-	}
-
-	self.seatsMini = {
-    	[1] = {
-    		anchorPoints = 	{	0.547,	0.0957,		0.654,	0.1425	},
-    		anchorOffsets = {	0,		0,			0,		0		},
-    	},
-    	[2] = {
-    		anchorPoints = {1-(340/1400),0+(130/940),1-(190/1400),0+(174/940)},
-    		anchorOffsets = {0,0,0,0},
-    	},
-    	[3] = {
-    		anchorPoints = {1-(260/1400),0.5-(22/940),1-(110/1400),0.5+(22/940)},
-    		anchorOffsets = {-0,-0,-0,0},
-    	},
-    	[4] = {
-    		anchorPoints = {1-(340/1400),1-(174/940),1-(190/1400),1-(130/940)},
-    		anchorOffsets = {-0,-0,-0,-0},
-    	},
-    	[5] = {
-    		anchorPoints = {0.6-(74/1400),1-(134/940),0.6+(76/1400),1-(90/940)},
-    		anchorOffsets = {0,0,0,0},
-    	},
-    	[6] = {
-    		anchorPoints = {0.4-(76/1400),1-(134/940),0.4+(74/1400),1-(90/940)},
-    		anchorOffsets = {0,0,0,0},
-    	},
-    	[7] = {
-    		anchorPoints = {0+(190/1400),1-(174/940),0+(340/1400),1-(130/940)},
-    		anchorOffsets = {0,0,0,0},
-    	},
-    	[8] = {
-    		anchorPoints = {0+(110/1400),0.5-(22/940),0+(260/1400),0.5+(22/940)},
-    		anchorOffsets = {0,0,0,0},
-    	},
-    	[9] = {
-    		anchorPoints = {0+(190/1400),0+(130/940),0+(340/1400),0+(174/940)},
-    		anchorOffsets = {0,0,0,0},
-    	},
-    	[10] = {
-    		anchorPoints = {0.4-(76/1400),0+(90/940),0.4+(74/1400),0+(134/940)},
-    		anchorOffsets = {0,0,0,0},
-    	},
-	}
-
-
+function LUI_Holdem:OnDocLoaded()
+	if self.xmlDoc == nil then
+		return
+	end
+	
     -- Load Defaults
     self:LoadDefaults()
 
@@ -2427,6 +2015,19 @@ function LUI_Holdem:OnLeaveTable(wndHandler, wndControl)
         self:Send(tMessage)
 	end
 
+	-- Notify Table
+	tMessage = {
+		sender = name,
+		action = "leave-table",
+	}
+
+	self:Send(tMessage,true)
+
+    if self.game.conn == "ICComm" then
+       self:PlayerLeftTable(tMessage)
+    end
+
+	-- Leave Table
     if self.name == name then
         -- Disable Player
         self.active = false
@@ -2439,17 +2040,6 @@ function LUI_Holdem:OnLeaveTable(wndHandler, wndControl)
         self:LeaveTable()
     end
 
-	-- Notify Table
-	tMessage = {
-		sender = name,
-		action = "leave-table",
-	}
-
-	self:Send(tMessage,true)
-
-    if self.game.conn == "ICComm" then
-       self:PlayerLeftTable(tMessage)
-    end
 end
 
 function LUI_Holdem:PlayerLeftTable(message)
@@ -2557,11 +2147,8 @@ function LUI_Holdem:PlayerLeftTable(message)
         self:Log(message.sender .. " left the table.")
     end
 
-    -- Update Buttons
-    self:CheckButtons()
-
-    -- Quit Game
-    if self.game.host == message.sender then
+    -- If Host Left, Quit Game
+    if self.game.host == message.sender and not self.game.host == self.name then
         -- Stop Timer
         self.timer:Stop()
         self.broadcast:Stop()
@@ -2570,11 +2157,15 @@ function LUI_Holdem:PlayerLeftTable(message)
         self:LeaveChannel()
         self:LeaveTable()
     end
+
+    -- Update Buttons
+    self:CheckButtons()
+
 end
 
 function LUI_Holdem:LeaveTable()
 	-- Reset Game Data
-    self.game = nil
+    self.game = {}
     self.seat = nil
     self.active = false
     self.key = nil
