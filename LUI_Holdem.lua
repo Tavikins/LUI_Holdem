@@ -84,8 +84,13 @@ function LUI_Holdem:OnLoad()
 	
 	self.broadcast = ApolloTimer.Create(30, true, "Broadcast", self)
 	self.broadcast:Stop()
-	
-	self.version = 1.3
+end
+
+function LUI_Holdem:OnDocLoaded()
+	if self.xmlDoc == nil then
+		return
+	end
+	    self.version = 1.3
     self.defaults = {
     	["blinds"] = 100,
     	["cash"] = 10000000,
@@ -93,12 +98,12 @@ function LUI_Holdem:OnLoad()
     self.active = false
     self.keys = {}
 	self.guild = {}
-    self.settings = {
+    self.defaultsettings = {
         ["hide"] = false,
         ["combat"] = false,
         ["alert"] = true,
         ["sound"] = true,
-        ["check"] = true,
+        ["check"] = false,
     }
     self.game = {}
     self.cards = {}
@@ -191,23 +196,30 @@ function LUI_Holdem:OnLoad()
     		ante = 6,
     	},
 	}
-
-    self.players = {}
-	for i = 1, 10 do
-		self.players[i] = { active = false }
-	end
 	
+	self.players = {}
+	self.playerFrames = {}
+	self.seats = {}
 	self.cash = {}
-	for i = 6, 10 do
-		self.cash[i] = { grow = true }
+	self.buttons = {
+		colors = {
+			red = "xkcdDullRed",
+			blue = "UI_WindowTextCraftingBlueResistor",
+			yellow = "xkcdDullYellow",
+		},
+		positions = {}
+	}
+
+	
+	for i = 1, 10 do
+		self.players[i] = {active = false}
+		self.playerFrames[i] = {cardPosition = "Top"}
+		self.buttons.positions[i] = {}
+		self.cash[i] = {}
+		self.seats[i] = {}
 	end
 	
-end
-
-function LUI_Holdem:OnDocLoaded()
-	if self.xmlDoc == nil then
-		return
-	end
+	if self.settings == nil then self.settings = self.defaultsettings end
 	
     -- Load Defaults
     self:LoadDefaults()
@@ -379,7 +391,7 @@ function LUI_Holdem:OnRestore(eType, tSavedData)
     end
 
     if tSavedData ~= nil and tSavedData ~= "" then
-        self.settings = self:Extend(self.settings, tSavedData)
+        self.settings = tSavedData
     end
 end
 
@@ -624,6 +636,11 @@ function LUI_Holdem:SendSplitMessage(tMessage,isTable)
 end
 
 function LUI_Holdem:Send(tMessage,isTable)
+	if self.name ~= self.game.host then
+		tMessage.ishost = false
+	elseif self.name == self.game.host then
+		tMessage.ishost = true
+	end
 	local strMsg = JSON.encode(tMessage)
 
 	if isTable == true then
@@ -641,7 +658,7 @@ function LUI_Holdem:Send(tMessage,isTable)
 		    if string.len(tostring(strMsg)) > 450 then
 		    	self:SendSplitMessage(tMessage,isTable)
 		    else
-		    	self.chat:Send(tostring(strMsg))
+			   	self.chat:Send(tostring(strMsg))
 		    end
 		end
 	else
@@ -829,6 +846,7 @@ function LUI_Holdem:OnGameMessage(message)
         end
     end
 
+
     if not self.active == true then
         return
     end
@@ -864,6 +882,7 @@ function LUI_Holdem:OnGameMessage(message)
     elseif message.action == "showdown" then
         self:OnStartShowdown(message)
 	end
+
 end
 
 function LUI_Holdem:OnDeny(message)
@@ -939,7 +958,6 @@ function LUI_Holdem:AddPlayer(message)
 
         for i = 1, 10 do
             if self.players[i].name and self.players[i].name == message.sender then
-                exists = true
                 break
             end
         end
@@ -1541,17 +1559,6 @@ end
 -- #########################################################################################################################################
 
 
-
-function LUI_Holdem:ScaleOffsets(points)
-	local offsets = points
-	if offsets == nil then return end
-	for k,point in ipairs(offsets) do
-		--offsets[k] = point * scale
-	end
-	return offsets
-end
-
-
 function LUI_Holdem:BuildTable()
 	if not self.wndTable then
 		self.wndTable = Apollo.LoadForm(self.xmlDoc, "TableForm", nil, self)
@@ -1937,7 +1944,7 @@ function LUI_Holdem:JoinTable(message)
 	self.wndPlayers[num]:Show(true)
 
     if self.game.host == self.name then
-        if not self.game.active == true and self.game.playerCount > 1 then
+        if not self.game.active == true and self.game.playerCount > 0 then
             self.wndTable:FindChild("BtnStart"):Show(true,true)
         end
     end
@@ -2015,19 +2022,6 @@ function LUI_Holdem:OnLeaveTable(wndHandler, wndControl)
         self:Send(tMessage)
 	end
 
-	-- Notify Table
-	tMessage = {
-		sender = name,
-		action = "leave-table",
-	}
-
-	self:Send(tMessage,true)
-
-    if self.game.conn == "ICComm" then
-       self:PlayerLeftTable(tMessage)
-    end
-
-	-- Leave Table
     if self.name == name then
         -- Disable Player
         self.active = false
@@ -2040,6 +2034,17 @@ function LUI_Holdem:OnLeaveTable(wndHandler, wndControl)
         self:LeaveTable()
     end
 
+	-- Notify Table
+	tMessage = {
+		sender = name,
+		action = "leave-table",
+	}
+
+	self:Send(tMessage,true)
+
+    if self.game.conn == "ICComm" then
+       self:PlayerLeftTable(tMessage)
+    end
 end
 
 function LUI_Holdem:PlayerLeftTable(message)
@@ -2147,8 +2152,11 @@ function LUI_Holdem:PlayerLeftTable(message)
         self:Log(message.sender .. " left the table.")
     end
 
-    -- If Host Left, Quit Game
-    if self.game.host == message.sender and not self.game.host == self.name then
+    -- Update Buttons
+    self:CheckButtons()
+
+    -- Quit Game
+    if self.game.host == message.sender then
         -- Stop Timer
         self.timer:Stop()
         self.broadcast:Stop()
@@ -2157,10 +2165,6 @@ function LUI_Holdem:PlayerLeftTable(message)
         self:LeaveChannel()
         self:LeaveTable()
     end
-
-    -- Update Buttons
-    self:CheckButtons()
-
 end
 
 function LUI_Holdem:LeaveTable()
@@ -2514,15 +2518,10 @@ function LUI_Holdem:OnReceiveCards(message)
     -- Show Player Cards
     for _,player in pairs(message.cards) do
         if self.seat and self.seat == player.seat then
-            for k,v in ipairs(player.cards) do
-				if v ~= nil and k ~= nil then
-					local deltcard = tostring("Card"..k)
-					local spritecard = tostring(self.cards[tonumber(self:Crypt(v,self.key,true))].sprite)
-					--Print(tostring(k)..":"..tostring(self.cards[tonumber(self:Crypt(v,self.key,true))].sprite))
-       	    	     self.wndPlayers[player.seat]:FindChild("CardHolder"):FindChild(deltcard):SetSprite(spritecard)
-       	    	     self.wndPlayers[player.seat]:FindChild("CardHolder"):FindChild(deltcard):Show(true,true)
-            	end
-			end
+            for k,v in pairs(player.cards) do
+                self.wndPlayers[player.seat]:FindChild("CardHolder"):FindChild("Card"..tostring(k)):SetSprite(self.cards[tonumber(self:Crypt(v,self.key,true))].sprite)
+                self.wndPlayers[player.seat]:FindChild("CardHolder"):FindChild("Card"..tostring(k)):Show(true,true)
+            end
 
             self.wndPlayers[player.seat]:FindChild("CardHolder"):Show(true,true)
             self.wndPlayers[player.seat]:FindChild("CardHolder_Back"):Show(false,true)
@@ -2541,13 +2540,10 @@ end
 function LUI_Holdem:OnReceiveFlop(message)
     self.wndTable:FindChild("CardHolder"):Show(true,true)
 
-    for k,v in ipairs(message.cards) do
-		if v ~= nil and k ~= nil then
-			local deltcard = tostring("Card"..k)
-        	self.wndTable:FindChild("CardHolder"):FindChild(deltcard):SetSprite(self.cards[v].sprite)
-        	self.wndTable:FindChild("CardHolder"):FindChild(deltcard):Show(true)
-    	end
-	end
+    for k,v in pairs(message.cards) do
+        self.wndTable:FindChild("CardHolder"):FindChild("Card"..tostring(k)):SetSprite(self.cards[v].sprite)
+        self.wndTable:FindChild("CardHolder"):FindChild("Card"..tostring(k)):Show(true)
+    end
 
     if self.game.showdown and self.game.showdown == true then
         self:OnShowdown()
@@ -4848,7 +4844,7 @@ function LUI_Holdem:ShowTimer()
     end
 
 	self.ActionTaken = false
-	self.TimeWarning = 4
+	self.TimeWarning = 5.2
     self.actionTimer:Stop()
     self.actionTimer:Set(0.2, true, "OnBarTimer")
     self.actionTimer:Start()
@@ -4859,7 +4855,7 @@ function LUI_Holdem:OnBarTimer()
 		local warn
         local diff = os.time() - self.players[self.current].timer
         self.players[self.current].remaining = self.game.actionTimer - diff
-		if self.players[self.current].remaining < 4.2 and self.current == self.seat then
+		if self.players[self.current].remaining > 0 and self.current == self.seat then
 			warn = math.floor(self.players[self.current].remaining)
 			--Print(warn.."<"..self.TimeWarning)
 			if warn < self.TimeWarning and self.settings["sound"] then
@@ -4868,10 +4864,10 @@ function LUI_Holdem:OnBarTimer()
 			end			
 		end
 
-        if self.players[self.current].remaining > .2 then
+        if self.players[self.current].remaining > 0 then
 			self.TimedOut = false
             self.wndPlayers[self.current]:FindChild("Bar"):SetMax(self.game.actionTimer)
-            self.wndPlayers[self.current]:FindChild("Bar"):SetProgress(self.players[self.current].remaining)
+            self.wndPlayers[self.current]:FindChild("Bar"):SetProgress(self.players[self.current].remaining - 0.2)
             self.wndPlayers[self.current]:FindChild("Bar"):Show(true)
         elseif self.players[self.current].remaining > -1 and self.current == self.seat then
 			self:ResetNav()
@@ -5152,9 +5148,7 @@ end
 
 function LUI_Holdem:OnResize( wndHandler, wndControl )
 	local l,t,r,b = self.wndTable:GetAnchorOffsets()
-	self.UIScale = (r - l)/1400
 	self.settings["tablepos"] = {l,t,r,b}
-	self.settings["scale"] = self.UIScale
 end
 
 -----------------------------------------------------------------------------------------------
