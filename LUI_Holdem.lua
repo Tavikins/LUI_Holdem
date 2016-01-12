@@ -90,7 +90,7 @@ function LUI_Holdem:OnDocLoaded()
 	if self.xmlDoc == nil then
 		return
 	end
-	    self.version = 1.3
+	    self.version = 1.6
     self.defaults = {
     	["blinds"] = 100,
     	["cash"] = 10000000,
@@ -847,9 +847,7 @@ function LUI_Holdem:OnGameMessage(message)
     end
 
 
-    if not self.active == true then
-        return
-    end
+    if not self.active == true then return end
 
     if message.action == "new-round" then
         self:StartRound(message)
@@ -867,7 +865,17 @@ function LUI_Holdem:OnGameMessage(message)
         self:OnReceiveTurn(message)
     elseif message.action == "river" then
         self:OnReceiveRiver(message)
-    elseif message.action == "fold" then
+    elseif message.action == "stop" then
+        self:OnStop(message)
+    elseif message.action == "rebuy" then
+        self:OnRebuy(message)
+    elseif message.action == "showdown" then
+        self:OnStartShowdown(message)
+	end
+
+	if message.isHost == false and self.name ~= self.game.host then return end	
+	
+    if message.action == "fold" then
         self:OnAction(message)
     elseif message.action == "check" then
         self:OnAction(message)
@@ -875,12 +883,10 @@ function LUI_Holdem:OnGameMessage(message)
         self:OnAction(message)
     elseif message.action == "raise" then
         self:OnAction(message)
-    elseif message.action == "stop" then
-        self:OnStop(message)
-    elseif message.action == "rebuy" then
-        self:OnRebuy(message)
-    elseif message.action == "showdown" then
-        self:OnStartShowdown(message)
+	end
+	
+	if message.isHost == false and self.name == self.game.host then
+		self:Send(message,true)
 	end
 
 end
@@ -2745,7 +2751,10 @@ function LUI_Holdem:OnActionConfirmTimer()
 end
 
 function LUI_Holdem:OnAction(message)
+	if message.isHost == false then return end
+	
 	Apollo.StopTimer("LUI_Holdem_TimedOut")
+	
     local cash = self.players[self.current].cash
     local text = message.action
     local color = message.action
