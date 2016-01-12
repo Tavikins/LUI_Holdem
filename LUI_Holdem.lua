@@ -811,6 +811,13 @@ function LUI_Holdem:OnGameMessage(message)
 	if not message or not message.action then
 		return
 	end
+	
+	if message.isHost == false and self.name ~= self.game.host then 
+		return
+	elseif message.isHost == false and self.name == self.game.host then
+		self:Send(message,true)
+		return
+	end
 
     if message.action == "join" then
         self:AddPlayer(message)
@@ -871,11 +878,7 @@ function LUI_Holdem:OnGameMessage(message)
         self:OnRebuy(message)
     elseif message.action == "showdown" then
         self:OnStartShowdown(message)
-	end
-
-	if message.isHost == false and self.name ~= self.game.host then return end	
-	
-    if message.action == "fold" then
+    elseif message.action == "fold" then
         self:OnAction(message)
     elseif message.action == "check" then
         self:OnAction(message)
@@ -883,10 +886,6 @@ function LUI_Holdem:OnGameMessage(message)
         self:OnAction(message)
     elseif message.action == "raise" then
         self:OnAction(message)
-	end
-	
-	if message.isHost == false and self.name == self.game.host then
-		self:Send(message,true)
 	end
 
 end
