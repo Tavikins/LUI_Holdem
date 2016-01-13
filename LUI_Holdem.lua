@@ -90,7 +90,7 @@ function LUI_Holdem:OnDocLoaded()
 	if self.xmlDoc == nil then
 		return
 	end
-	self.version = 1.6
+	self.version = 1.7
     self.defaults = {
     	["blinds"] = 100,
     	["cash"] = 10000000,
@@ -104,6 +104,13 @@ function LUI_Holdem:OnDocLoaded()
         ["alert"] = true,
         ["sound"] = true,
         ["check"] = false,
+		["Blinds"] = {
+			multiplier = 2,
+			start = 10,
+			timer = 30,
+			ante = 0,
+			custom = true
+		}
     }
     self.game = {}
     self.cards = {}
@@ -134,7 +141,7 @@ function LUI_Holdem:OnDocLoaded()
         [9] = "Look who it is!",
         [10] = "Hey there!"
     }
-    self.levels = {
+    self.DefaultLevels = {
     	[1] = {
     		blind = 1,
     		ante = false,
@@ -219,10 +226,14 @@ function LUI_Holdem:OnDocLoaded()
 		self.seats[i] = {}
 	end
 	
-	if self.settings == nil then self.settings = self.defaultsettings end
+	for k, v in pairs(self.defaultsettings) do
+		if self.settings[k] == nil then 
+			self.settings[k] = self.defaultsettings[k]
+		end
+	end
 	
-    -- Load Defaults
-    self:LoadDefaults()
+	-- Load Defaults
+  --  self:LoadDefaults()
 
 	Apollo.RegisterSlashCommand("poker", "OnSlashCommand", self)
 
@@ -911,6 +922,13 @@ function LUI_Holdem:JoinGame(message)
 	if message.recipient ~= self.name then
 		return
 	end
+	
+	if message.levels ~= nil then
+		self.levels = message.levels
+	end
+	if message.blindDiv ~= nil then
+		self.defaults["blinds"] = message.blindDiv
+	end
 
     if message.game ~= nil then
         self.game = self:Extend(self.game, message.game)
@@ -1058,6 +1076,8 @@ end
 function LUI_Holdem:BuildLobby()
 	if not self.wndLobby then
 		self.wndLobby = Apollo.LoadForm(self.xmlDoc, "LobbyForm", nil, self)
+		self.wndCustomBlinds = self.wndLobby:FindChild("CustomBlinds")
+		self.wndCustomBlinds:Show(false,true)
     end
 
     -- Build Alert Window
@@ -1196,8 +1216,10 @@ function LUI_Holdem:OnLobbyTabBtn(wndHandler, wndControl)
 	end
 end
 
-function LUI_Holdem:OnCashAmountChanged(wndHandler, wndControl)
-	self.wndLobby:FindChild("BuyInSetting"):FindChild("CashWindow"):SetAmount(wndHandler:GetValue())
+function LUI_Holdem:OnCashAmountChanged(wndHandler, wndControl, newvalue)
+	local value = newvalue or wndHandler:GetAmount()
+	self.wndLobby:FindChild("BuyInSetting"):FindChild("CashWindow"):SetAmount(value)
+	self.wndLobby:FindChild("BuyInSetting"):FindChild("CashSlider"):SetValue(value)
 --[[
     if wndHandler:GetValue() > 0 then
         -- Update Type Dropdown
@@ -1347,6 +1369,7 @@ function LUI_Holdem:OnCreateGame()
 	local playerFaction = GameLib.GetPlayerUnit():GetFaction()
 	local maxCurrency = GameLib.GetPlayerCurrency():GetAmount()
 	local nAmount = self.wndLobby:FindChild("NewGame"):FindChild("CashWindow"):GetAmount()
+	local blindDiv = self.defaults["blinds"]
 
 	if password ~= nil and password ~= "" then
 		locked = true
@@ -1378,10 +1401,41 @@ function LUI_Holdem:OnCreateGame()
         end
     end
 
+	self.levels = {}
+	local Start, Mult, Timer, Ante, blindDiv
+
 	-- Check Blind Raise Interval
 	for _,button in pairs(self.wndLobby:FindChild("BlindDropdown"):FindChild("ChoiceContainer"):GetChildren()) do
 		if button:IsChecked() then
-			blindRaise = tonumber(button:GetName())
+			if button:GetName() == "Custom" then
+				Start = (10000 * tonumber(self.wndCustomBlinds:FindChild("inputStart"):GetText())) or 10000
+				Mult = tonumber(self.wndCustomBlinds:FindChild("inputMult"):GetText()) or 1
+				Timer = tonumber(self.wndCustomBlinds:FindChild("inputTimer"):GetText()) or 0
+				Ante = (10000 * tonumber(self.wndCustomBlinds:FindChild("inputAnte"):GetText())) or false
+				
+				if Mult < 1 then
+					Mult = 1
+				end
+
+				if Ante == 0 then 
+					Ante = false
+				end
+				
+   				blindDiv = nAmount / Start
+				blindRaise = Timer
+				self.defaults["blinds"] = blindDiv
+    			
+				for i = 1, 15 do
+					self.levels[i] = { 	
+						blind = (1 * (Mult ^ (i - 1))),
+						ante = (1 * (Mult ^ (i - 1))),
+					}
+				end					
+			else
+				self.defaults["blinds"] = 100
+				self.levels = self.DefaultLevels
+				blindRaise = tonumber(button:GetName())
+			end
 		end
 	end
 
@@ -1402,6 +1456,8 @@ function LUI_Holdem:OnCreateGame()
 		buyIn = nAmount,
 		gameType = gameType,
 		blindRaise = blindRaise,
+		levels = self.levels,
+		blindDiv = blindDiv,
         actionTimer = actionTimer,
 		rebuy = rebuy,
 		playerCount = 1,
@@ -1523,6 +1579,35 @@ function LUI_Holdem:OnDropdownChoose(wndHandler, wndControl)
 	local dropdown = wndControl:GetParent():GetParent()
 	dropdown:SetText(wndControl:GetText())
 	wndControl:GetParent():Close()
+end
+
+function LUI_Holdem:OnCloseCustomBlinds( wndHandler, wndControl, eMouseButton )
+	self.wndCustomBlinds:Show(false,true)
+	self.wndCustomBlinds:GetParent():GetParent():Show(false,true)
+end
+
+function LUI_Holdem:OnCustomChoose( wndHandler, wndControl, eMouseButton )
+	if wndHandler:GetName() == "Custom" then
+		self.wndLobby:FindChild("BlindDropdown"):SetText("Custom")
+		self.wndCustomBlinds:Show(true,true)
+		if self.settings["Blinds"] == nil then
+			self.settings["Blinds"] = self.defaultsettings["Blinds"]
+		end
+		self.wndCustomBlinds:FindChild("inputMult"):SetText(self.settings["Blinds"].multiplier)
+		self.wndCustomBlinds:FindChild("inputStart"):SetText(self.settings["Blinds"].start)
+		self.wndCustomBlinds:FindChild("inputTimer"):SetText(self.settings["Blinds"].timer)
+		self.wndCustomBlinds:FindChild("inputAnte"):SetText(self.settings["Blinds"].ante)
+	end
+end
+
+function LUI_Holdem:OnEditBoxChanged( wndHandler, wndControl, strText )
+	self.settings["Blinds"] = {
+		multiplier = 	tonumber(self.wndCustomBlinds:FindChild("inputMult"):GetText()),
+		start = 		tonumber(self.wndCustomBlinds:FindChild("inputStart"):GetText()),
+		timer = 		tonumber(self.wndCustomBlinds:FindChild("inputTimer"):GetText()),
+		ante =			tonumber(self.wndCustomBlinds:FindChild("inputAnte"):GetText()),
+		custom = true
+	}
 end
 
 function LUI_Holdem:OnPlayerCurrencyChanged()
@@ -3952,6 +4037,11 @@ function LUI_Holdem:OnBtnRebuy()
     if not self.wndRebuy then
         self.wndRebuy = self.wndTable:FindChild("RebuyForm")
     end
+
+	if self.game.buyIn and self.game.buyIn > GameLib.GetPlayerCurrency():GetAmount() then
+		self:System("You don't have enough to rebuy. :(")
+		return
+	end
 
     if self.game.buyIn and self.game.buyIn > 0 then
         local strMessage = tostring(self.name) .. "  rebuys into the table!"
