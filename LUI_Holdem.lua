@@ -90,7 +90,7 @@ function LUI_Holdem:OnDocLoaded()
 	if self.xmlDoc == nil then
 		return
 	end
-	    self.version = 1.6
+	self.version = 1.6
     self.defaults = {
     	["blinds"] = 100,
     	["cash"] = 10000000,
@@ -1198,7 +1198,7 @@ end
 
 function LUI_Holdem:OnCashAmountChanged(wndHandler, wndControl)
 	self.wndLobby:FindChild("BuyInSetting"):FindChild("CashWindow"):SetAmount(wndHandler:GetValue())
-
+--[[
     if wndHandler:GetValue() > 0 then
         -- Update Type Dropdown
         if self.wndLobby:FindChild("TypeDropdown"):GetText() == "Public" then
@@ -1230,6 +1230,7 @@ function LUI_Holdem:OnCashAmountChanged(wndHandler, wndControl)
             end
         end
     end
+]]
 end
 
 function LUI_Holdem:RemoveGame(message)
@@ -1425,6 +1426,8 @@ function LUI_Holdem:OnCreateGame()
 
     -- Join Chat Channel
     self:JoinChatChannel()
+
+	self:CheckButtons()
 end
 
 function LUI_Holdem:OnJoinWait()
@@ -4236,7 +4239,7 @@ function LUI_Holdem:OnBtnPause(wndHandler, wndControl)
 	local tMessage = {
 		action = "pause",
 		value = wndHandler:IsChecked(),
-		remaining = self.game.remaining
+		remaining = self.game.remaining or 0
 	}
 
 	self:Send(tMessage,true)
@@ -4397,6 +4400,9 @@ function LUI_Holdem:HideButtons()
 end
 
 function LUI_Holdem:CheckButtons()
+	local SitOutText = self.wndTable:FindChild("SitOutText")
+	local LockText = self.wndTable:FindChild("LockText")
+	local PauseText = self.wndTable:FindChild("PauseText")
 	local btnSitout = self.wndTable:FindChild("BtnSitout")
 	local btnPause = self.wndTable:FindChild("BtnPause")
 	local btnRebuy = self.wndTable:FindChild("BtnRebuy")
@@ -4404,17 +4410,24 @@ function LUI_Holdem:CheckButtons()
 	local btnLock = self.wndTable:FindChild("BtnLock")
 	local btnLog = self.wndTable:FindChild("BtnLog")
 
-	-- Hide all buttons
-	btnSitout:Show(false,true)
-	btnPause:Show(false,true)
-	btnRebuy:Show(false,true)
-	btnStart:Show(false,true)
-	btnLock:Show(false,true)
-	btnLog:Show(false,true)
+	-- disable all buttons
+	btnSitout:Show(true,true) 
+	btnPause:Show(true,true) 
+	btnRebuy:Show(true,true)  
+	btnStart:Show(true,true)  
+	btnLock:Show(true,true)  
+	btnLog:Show(true,true)  
+	btnSitout:Enable(false)
+	btnPause:Enable(false)
+	btnRebuy:Enable(false) 
+	btnStart:Enable(false) 
+	btnLock:Enable(false) 
+	btnLog:Enable(false) 
 
 	if self.game.active == true and self:IsPlaying() == true then
-		btnSitout:Show(true,true)
-        btnLog:Show(true,true)
+		btnStart:Show(false,true)
+		btnSitout:Enable(true) 
+        btnLog:Enable(true) 
 
 		if self.players[self.seat].afk ~= nil and self.players[self.seat].afk == true then
 			btnSitout:SetCheck(true)
@@ -4423,8 +4436,8 @@ function LUI_Holdem:CheckButtons()
 		end
 
 		if self.game.host == self.name then
-			btnLock:Show(true,true)
-			btnPause:Show(true,true)
+			btnLock:Enable(true)
+			btnPause:Enable(true) 
 
 			if self.game.paused ~= nil and self.game.paused == true then
 				btnPause:SetCheck(true)
@@ -4439,8 +4452,8 @@ function LUI_Holdem:CheckButtons()
 			end
 		end
 
-		if self.game.rebuy and self.game.rebuy > 0 then
-            btnRebuy:Show(true,true)
+		if (self.game.rebuy and self.game.rebuy > 0) and GameLib.GetPlayerCurrency():GetAmount() > self.game.buyIn then
+            btnRebuy:Enable(true) 
 
             -- Reposition Log Button
             --btnLog:SetAnchorPoints(1,0,1,1)
@@ -4462,7 +4475,8 @@ function LUI_Holdem:CheckButtons()
 		end
 	else
 		if self.game.host == self.name then
-			btnStart:Show(true,true)
+			btnRebuy:Show(false,true)
+			btnStart:Enable(true) 
 		end
 	end
 end
