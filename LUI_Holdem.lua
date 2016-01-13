@@ -28,7 +28,69 @@ function LUI_Holdem:new(o)
     o = o or {}
     setmetatable(o, self)
     self.__index = self
-    self.version = 1.3
+    return o
+end
+
+function LUI_Holdem:Init()
+    local tDependencies = {
+        "ChatLog",
+        "BetterChatLog",
+        "ChatFixed",
+        "ImprovedChatLog",
+        "FixedChatLog",
+        "ChatAdvanced",
+        "ChatSplitter",
+        "ChatLinks"
+    }
+
+	Apollo.RegisterAddon(self, nil, nil, tDependencies)
+end
+
+function LUI_Holdem:OnDependencyError(strDependency, strError)
+    -- ignore dependency errors, because we only did set dependecies to ensure to get loaded after the specified addons
+    return true
+end
+
+function LUI_Holdem:OnLoad()
+	Apollo.LoadSprites("cards.xml")
+	Apollo.LoadSprites("tables.xml")
+	Apollo.LoadSprites("sprites.xml")
+
+	self.xmlDoc = XmlDoc.CreateFromFile("LUI_Holdem.xml")
+	self.xmlDoc:RegisterCallback("OnDocLoaded", self)
+
+	Apollo.RegisterEventHandler("CharacterCreated", "OnCharacterCreated", self)
+	Apollo.RegisterEventHandler("InterfaceMenuListHasLoaded", "OnInterfaceMenuListHasLoaded", self)
+	Apollo.RegisterEventHandler("ToggleLUIHoldem", "OnToggleMenu", self)
+	Apollo.RegisterEventHandler("GuildRoster", "OnGuildRoster", self)
+	Apollo.RegisterEventHandler("UnitEnteredCombat", "OnEnteredCombat", self)
+	Apollo.RegisterEventHandler("ChatMessage", "OnChatMessage", self)
+    Apollo.RegisterEventHandler("PlayerCurrencyChanged", "OnPlayerCurrencyChanged", self)
+
+	Apollo.RegisterTimerHandler("LUI_Holdem_Connect", "Connect", self)
+	Apollo.RegisterTimerHandler("LUI_Holdem_Connect_Game", "ConnectToHost", self)
+	Apollo.RegisterTimerHandler("LUI_Holdem_JoinGlobal", "JoinGlobalChannel", self)
+    Apollo.RegisterTimerHandler("LUI_Holdem_JoinChat", "JoinChatChannel", self)
+    Apollo.RegisterTimerHandler("LUI_Holdem_JoinGame", "OnJoinWait", self)
+	Apollo.RegisterTimerHandler("LUI_Holdem_Join", "JoinChannel", self)
+	Apollo.RegisterTimerHandler("LUI_Holdem_Notification", "OnNotification", self)
+    Apollo.RegisterTimerHandler("LUI_Holdem_Alert", "OnAlert", self)
+    Apollo.RegisterTimerHandler("LUI_Holdem_Wait", "OnWait", self)
+    Apollo.RegisterTimerHandler("LUI_Holdem_Next", "OnNextPlayer", self)
+    Apollo.RegisterTimerHandler("LUI_Holdem_Showdown", "OnShowdownTimer", self)
+	Apollo.RegisterTimerHandler("LUI_Holdem_TimedOut", "OnTimedOut", self)
+	Apollo.RegisterTimerHandler("ActionConfirmTimer", "OnActionConfirmTimer", self)
+	Apollo.RegisterTimerHandler("WarningTimer", "OnWarningTimer", self)
+	
+	self.broadcast = ApolloTimer.Create(30, true, "Broadcast", self)
+	self.broadcast:Stop()
+end
+
+function LUI_Holdem:OnDocLoaded()
+	if self.xmlDoc == nil then
+		return
+	end
+	self.version = 1.6
     self.defaults = {
     	["blinds"] = 100,
     	["cash"] = 10000000,
@@ -36,13 +98,12 @@ function LUI_Holdem:new(o)
     self.active = false
     self.keys = {}
 	self.guild = {}
-    self.settings = {
-        ["hide"] = true,
-        ["combat"] = true,
+    self.defaultsettings = {
+        ["hide"] = false,
+        ["combat"] = false,
         ["alert"] = true,
         ["sound"] = true,
         ["check"] = false,
-		["mini"] = false,
     }
     self.game = {}
     self.cards = {}
@@ -135,490 +196,31 @@ function LUI_Holdem:new(o)
     		ante = 6,
     	},
 	}
-
-    self.players = {
-        [1] = {
-            active = false
-        },
-        [2] = {
-            active = false
-        },
-        [3] = {
-            active = false
-        },
-        [4] = {
-            active = false
-        },
-        [5] = {
-            active = false
-        },
-        [6] = {
-            active = false
-        },
-        [7] = {
-            active = false
-        },
-        [8] = {
-            active = false
-        },
-        [9] = {
-            active = false
-        },
-        [10] = {
-            active = false
-        },
-    }
-    self.playerFrames = {
-    	[1] = {
-    		anchorPoints = {0.6,0,0.6,0},
-    		anchorOffsets = {-134,0,126,180},
-    		cardPosition = "Top",
-    	},
-    	[2] = {
-    		anchorPoints = {1,0,1,0},
-    		anchorOffsets = {-400,70,-140,250},
-    		cardPosition = "Top",
-    	},
-    	[3] = {
-    		anchorPoints = {1,0.5,1,0.5},
-    		anchorOffsets = {-270,-110,-10,70},
-    		cardPosition = "Top",
-    	},
-    	[4] = {
-    		anchorPoints = {1,1,1,1},
-    		anchorOffsets = {-400,-250,-140,-70},
-    		cardPosition = "Top",
-    	},
-    	[5] = {
-    		anchorPoints = {0.6,1,0.6,1},
-    		anchorOffsets = {-134,-180,126,0},
-    		cardPosition = "Top",
-    	},
-    	[6] = {
-    		anchorPoints = {0.4,1,0.4,1},
-    		anchorOffsets = {-126,-180,134,0},
-    		cardPosition = "Top",
-    	},
-    	[7] = {
-    		anchorPoints = {0,1,0,1},
-    		anchorOffsets = {140,-250,400,-70},
-    		cardPosition = "Top",
-    	},
-    	[8] = {
-    		anchorPoints = {0,0.5,0,0.5},
-    		anchorOffsets = {10,-110,270,70},
-    		cardPosition = "Top",
-    	},
-    	[9] = {
-    		anchorPoints = {0,0,0,0},
-    		anchorOffsets = {140,70,400,250},
-    		cardPosition = "Top",
-    	},
-    	[10] = {
-    		anchorPoints = {0.4,0,0.4,0},
-    		anchorOffsets = {-126,0,134,180},
-    		cardPosition = "Top",
-    	},
-	}
-
+	
+	self.players = {}
+	self.playerFrames = {}
+	self.seats = {}
+	self.cash = {}
 	self.buttons = {
 		colors = {
 			red = "xkcdDullRed",
 			blue = "UI_WindowTextCraftingBlueResistor",
 			yellow = "xkcdDullYellow",
 		},
-		positions = {
-			[1] = {
-                anchorPoints = {0.55,0.15,0.55,0.15},
-                anchorOffsets = {-47,0,-11,36},
-            },
-            [2] = {
-                anchorPoints = {0.8,0.35,0.8,0.35},
-                anchorOffsets = {-98,-57,-62,-21},
-            },
-            [3] = {
-                anchorPoints = {0.8,0.5,0.8,0.5},
-                anchorOffsets = {-32,-18,4,18},
-            },
-            [4] = {
-                anchorPoints = {0.8,0.65,0.8,0.65},
-                anchorOffsets = {-108,31,-72,67},
-            },
-            [5] = {
-                anchorPoints = {0.55,0.8,0.55,0.8},
-                anchorOffsets = {-47,-36,-11,0},
-            },
-            [6] = {
-                anchorPoints = {0.45,0.8,0.45,0.8},
-                anchorOffsets = {11,-36,47,0},
-            },
-            [7] = {
-                anchorPoints = {0.2,0.65,0.2,0.65},
-                anchorOffsets = {72,31,108,67},
-            },
-            [8] = {
-                anchorPoints = {0.2,0.5,0.2,0.5},
-                anchorOffsets = {-4,-18,32,18},
-            },
-            [9] = {
-                anchorPoints = {0.2,0.35,0.2,0.35},
-                anchorOffsets = {72,-67,-108,-31},
-            },
-            [10] = {
-                anchorPoints = {0.45,0.15,0.45,0.15},
-                anchorOffsets = {11,0,47,36},
-            }
-		}
+		positions = {}
 	}
 
-	self.cash = {
-		[1] = {
-    		anchorPoints = {0.6,0.35,0.6,0.35},
-    		anchorOffsets = {-134,-45,-4,-15},
-    	},
-    	[2] = {
-    		anchorPoints = {0.75,0.35,0.75,0.35},
-    		anchorOffsets = {-205,-15,-45,15},
-    	},
-    	[3] = {
-    		anchorPoints = {0.75,0.5,0.75,0.5},
-    		anchorOffsets = {-155,-15,5,15},
-    	},
-    	[4] = {
-    		anchorPoints = {0.75,0.65,0.75,0.65},
-    		anchorOffsets = {-205,-15,-45,15},
-    	},
-    	[5] = {
-    		anchorPoints = {0.6,0.65,0.6,0.65},
-    		anchorOffsets = {-134,16,-4,46},
-    	},
-    	[6] = {
-    		anchorPoints = {0.4,0.65,0.4,0.65},
-    		anchorOffsets = {-86,16,34,46},
-            grow = true,
-    	},
-    	[7] = {
-    		anchorPoints = {0.25,0.65,0.25,0.65},
-    		anchorOffsets = {-55,-15,80,15},
-            grow = true,
-    	},
-    	[8] = {
-    		anchorPoints = {0.25,0.5,0.25,0.5},
-    		anchorOffsets = {-85,-15,30,15},
-            grow = true,
-    	},
-    	[9] = {
-    		anchorPoints = {0.25,0.35,0.25,0.35},
-    		anchorOffsets = {-55,-15,80,15},
-            grow = true,
-    	},
-    	[10] = {
-    		anchorPoints = {0.4,0.35,0.4,0.35},
-    		anchorOffsets = {-86,-45,34,-15},
-            grow = true,
-    	},
-	}
-
-	self.seats = {
-    	[1] = {
-    		anchorPoints = {0.6,0,0.6,0},
-    		anchorOffsets = {-74,90,76,134},
-    	},
-    	[2] = {
-    		anchorPoints = {1,0,1,0},
-    		anchorOffsets = {-340,130,-190,174},
-    	},
-    	[3] = {
-    		anchorPoints = {1,0.5,1,0.5},
-    		anchorOffsets = {-260,-22,-110,22},
-    	},
-    	[4] = {
-    		anchorPoints = {1,1,1,1},
-    		anchorOffsets = {-340,-174,-190,-130},
-    	},
-    	[5] = {
-    		anchorPoints = {0.6,1,0.6,1},
-    		anchorOffsets = {-74,-134,76,-90},
-    	},
-    	[6] = {
-    		anchorPoints = {0.4,1,0.4,1},
-    		anchorOffsets = {-76,-134,74,-90},
-    	},
-    	[7] = {
-    		anchorPoints = {0,1,0,1},
-    		anchorOffsets = {190,-174,340,-130},
-    	},
-    	[8] = {
-    		anchorPoints = {0,0.5,0,0.5},
-    		anchorOffsets = {110,-22,260,22},
-    	},
-    	[9] = {
-    		anchorPoints = {0,0,0,0},
-    		anchorOffsets = {190,130,340,174},
-    	},
-    	[10] = {
-    		anchorPoints = {0.4,0,0.4,0},
-    		anchorOffsets = {-76,90,74,134},
-    	},
-	}
-
-    self.playerFramesMini = {
-    	[1] = {
-    		anchorPoints = {0.6,0,0.6,0},
-    		anchorOffsets = {-134,0,126,180},
-    		cardPosition = "Top",
-    	},
-    	[2] = {
-    		anchorPoints = {1,0,1,0},
-    		anchorOffsets = {-400,70,-140,250},
-    		cardPosition = "Top",
-    	},
-    	[3] = {
-    		anchorPoints = {1,0.5,1,0.5},
-    		anchorOffsets = {-270,-110,-10,70},
-    		cardPosition = "Top",
-    	},
-    	[4] = {
-    		anchorPoints = {1,1,1,1},
-    		anchorOffsets = {-400,-250,-140,-70},
-    		cardPosition = "Top",
-    	},
-    	[5] = {
-    		anchorPoints = {0.6,1,0.6,1},
-    		anchorOffsets = {-134,-180,126,0},
-    		cardPosition = "Top",
-    	},
-    	[6] = {
-    		anchorPoints = {0.4,1,0.4,1},
-    		anchorOffsets = {-126,-180,134,0},
-    		cardPosition = "Top",
-    	},
-    	[7] = {
-    		anchorPoints = {0,1,0,1},
-    		anchorOffsets = {140,-250,400,-70},
-    		cardPosition = "Top",
-    	},
-    	[8] = {
-    		anchorPoints = {0,0.5,0,0.5},
-    		anchorOffsets = {10,-110,270,70},
-    		cardPosition = "Top",
-    	},
-    	[9] = {
-    		anchorPoints = {0,0,0,0},
-    		anchorOffsets = {140,70,400,250},
-    		cardPosition = "Top",
-    	},
-    	[10] = {
-    		anchorPoints = {0.4,0,0.4,0},
-    		anchorOffsets = {-126,0,134,180},
-    		cardPosition = "Top",
-    	},
-	}
-
-	--H:491.2, W:800
-	self.buttonsMini = {
-		colors = {
-			red = "xkcdDullRed",
-			blue = "UI_WindowTextCraftingBlueResistor",
-			yellow = "xkcdDullYellow",
-		},
-		positions = {
-			[1] = {
-                anchorPoints = {0.492,0.15,0.687,0.223},
-                anchorOffsets = {0,0,0,0},
-            },
-            [2] = {
-                anchorPoints = {0.8,0.35,0.8,0.35},
-                anchorOffsets = {-98,-57,-62,-21},
-            },
-            [3] = {
-                anchorPoints = {0.8,0.5,0.8,0.5},
-                anchorOffsets = {-32,-18,4,18},
-            },
-            [4] = {
-                anchorPoints = {0.8,0.65,0.8,0.65},
-                anchorOffsets = {-108,31,-72,67},
-            },
-            [5] = {
-                anchorPoints = {0.492,0.8,0.687,0.8},
-                anchorOffsets = {0,-36,0,0},
-            },
-            [6] = {
-                anchorPoints = {0.45,0.8,0.45,0.8},
-                anchorOffsets = {11,-36,47,0},
-            },
-            [7] = {
-                anchorPoints = {0.2,0.65,0.2,0.65},
-                anchorOffsets = {72,31,108,67},
-            },
-            [8] = {
-                anchorPoints = {0.2,0.5,0.2,0.5},
-                anchorOffsets = {-4,-18,32,18},
-            },
-            [9] = {
-                anchorPoints = {0.2,0.35,0.2,0.35},
-                anchorOffsets = {72,-67,-108,-31},
-            },
-            [10] = {
-                anchorPoints = {0.45,0.15,0.45,0.223},
-                anchorOffsets = {11,0,47,0},
-            }
-		}
-	}
-
-	self.cashMini = {
-		[1] = {
-    		anchorPoints = {0.6,0.35,0.6,0.35},
-    		anchorOffsets = {-134,-45,-4,-15},
-    	},
-    	[2] = {
-    		anchorPoints = {0.75,0.35,0.75,0.35},
-    		anchorOffsets = {-205,-15,-45,15},
-    	},
-    	[3] = {
-    		anchorPoints = {0.75,0.5,0.75,0.5},
-    		anchorOffsets = {-155,-15,5,15},
-    	},
-    	[4] = {
-    		anchorPoints = {0.75,0.65,0.75,0.65},
-    		anchorOffsets = {-205,-15,-45,15},
-    	},
-    	[5] = {
-    		anchorPoints = {0.6,0.65,0.6,0.65},
-    		anchorOffsets = {-134,16,-4,46},
-    	},
-    	[6] = {
-    		anchorPoints = {0.4,0.65,0.4,0.65},
-    		anchorOffsets = {-86,16,34,46},
-            grow = true,
-    	},
-    	[7] = {
-    		anchorPoints = {0.25,0.65,0.25,0.65},
-    		anchorOffsets = {-55,-15,80,15},
-            grow = true,
-    	},
-    	[8] = {
-    		anchorPoints = {0.25,0.5,0.25,0.5},
-    		anchorOffsets = {-85,-15,30,15},
-            grow = true,
-    	},
-    	[9] = {
-    		anchorPoints = {0.25,0.35,0.25,0.35},
-    		anchorOffsets = {-55,-15,80,15},
-            grow = true,
-    	},
-    	[10] = {
-    		anchorPoints = {0.4,0.35,0.4,0.35},
-    		anchorOffsets = {-86,-45,34,-15},
-            grow = true,
-    	},
-	}
-
-	self.seatsMini = {
-    	[1] = {
-    		anchorPoints = 	{	0.547,	0.0957,		0.654,	0.1425	},
-    		anchorOffsets = {	0,		0,			0,		0		},
-    	},
-    	[2] = {
-    		anchorPoints = {1-(340/1400),0+(130/940),1-(190/1400),0+(174/940)},
-    		anchorOffsets = {0,0,0,0},
-    	},
-    	[3] = {
-    		anchorPoints = {1-(260/1400),0.5-(22/940),1-(110/1400),0.5+(22/940)},
-    		anchorOffsets = {-0,-0,-0,0},
-    	},
-    	[4] = {
-    		anchorPoints = {1-(340/1400),1-(174/940),1-(190/1400),1-(130/940)},
-    		anchorOffsets = {-0,-0,-0,-0},
-    	},
-    	[5] = {
-    		anchorPoints = {0.6-(74/1400),1-(134/940),0.6+(76/1400),1-(90/940)},
-    		anchorOffsets = {0,0,0,0},
-    	},
-    	[6] = {
-    		anchorPoints = {0.4-(76/1400),1-(134/940),0.4+(74/1400),1-(90/940)},
-    		anchorOffsets = {0,0,0,0},
-    	},
-    	[7] = {
-    		anchorPoints = {0+(190/1400),1-(174/940),0+(340/1400),1-(130/940)},
-    		anchorOffsets = {0,0,0,0},
-    	},
-    	[8] = {
-    		anchorPoints = {0+(110/1400),0.5-(22/940),0+(260/1400),0.5+(22/940)},
-    		anchorOffsets = {0,0,0,0},
-    	},
-    	[9] = {
-    		anchorPoints = {0+(190/1400),0+(130/940),0+(340/1400),0+(174/940)},
-    		anchorOffsets = {0,0,0,0},
-    	},
-    	[10] = {
-    		anchorPoints = {0.4-(76/1400),0+(90/940),0.4+(74/1400),0+(134/940)},
-    		anchorOffsets = {0,0,0,0},
-    	},
-	}
-    return o
-end
-
-function LUI_Holdem:Init()
-    local tDependencies = {
-        "ChatLog",
-        "BetterChatLog",
-        "ChatFixed",
-        "ImprovedChatLog",
-        "FixedChatLog",
-        "ChatAdvanced",
-        "ChatSplitter",
-        "ChatLinks"
-    }
-
-	Apollo.RegisterAddon(self, nil, nil, tDependencies)
-end
-
-function LUI_Holdem:OnDependencyError(strDependency, strError)
-    -- ignore dependency errors, because we only did set dependecies to ensure to get loaded after the specified addons
-    return true
-end
-
-function LUI_Holdem:OnLoad()
-	Apollo.LoadSprites("cards.xml")
-	Apollo.LoadSprites("tables.xml")
-	Apollo.LoadSprites("sprites.xml")
-
-	self.xmlDoc = XmlDoc.CreateFromFile("LUI_Holdem.xml")
-	self.xmlDoc:RegisterCallback("OnDocLoaded", self)
-
-	Apollo.RegisterEventHandler("CharacterCreated", "OnCharacterCreated", self)
-	Apollo.RegisterEventHandler("InterfaceMenuListHasLoaded", "OnInterfaceMenuListHasLoaded", self)
-	Apollo.RegisterEventHandler("ToggleLUIHoldem", "OnToggleMenu", self)
-	Apollo.RegisterEventHandler("GuildRoster", "OnGuildRoster", self)
-	Apollo.RegisterEventHandler("UnitEnteredCombat", "OnEnteredCombat", self)
-	Apollo.RegisterEventHandler("ChatMessage", "OnChatMessage", self)
-    Apollo.RegisterEventHandler("PlayerCurrencyChanged", "OnPlayerCurrencyChanged", self)
-
-	Apollo.RegisterTimerHandler("LUI_Holdem_Connect", "Connect", self)
-	Apollo.RegisterTimerHandler("LUI_Holdem_Connect_Game", "ConnectToHost", self)
-	Apollo.RegisterTimerHandler("LUI_Holdem_JoinGlobal", "JoinGlobalChannel", self)
-    Apollo.RegisterTimerHandler("LUI_Holdem_JoinChat", "JoinChatChannel", self)
-    Apollo.RegisterTimerHandler("LUI_Holdem_JoinGame", "OnJoinWait", self)
-	Apollo.RegisterTimerHandler("LUI_Holdem_Join", "JoinChannel", self)
-	Apollo.RegisterTimerHandler("LUI_Holdem_Notification", "OnNotification", self)
-    Apollo.RegisterTimerHandler("LUI_Holdem_Alert", "OnAlert", self)
-    Apollo.RegisterTimerHandler("LUI_Holdem_Wait", "OnWait", self)
-    Apollo.RegisterTimerHandler("LUI_Holdem_Next", "OnNextPlayer", self)
-    Apollo.RegisterTimerHandler("LUI_Holdem_Showdown", "OnShowdownTimer", self)
-	Apollo.RegisterTimerHandler("LUI_Holdem_TimedOut", "OnTimedOut", self)
-	Apollo.RegisterTimerHandler("ActionConfirmTimer", "OnActionConfirmTimer", self)
-	Apollo.RegisterTimerHandler("WarningTimer", "OnWarningTimer", self)
 	
-	self.broadcast = ApolloTimer.Create(30, true, "Broadcast", self)
-	self.broadcast:Stop()
-end
-
-function LUI_Holdem:OnDocLoaded()
-	if self.xmlDoc == nil then
-		return
+	for i = 1, 10 do
+		self.players[i] = {active = false}
+		self.playerFrames[i] = {cardPosition = "Top"}
+		self.buttons.positions[i] = {}
+		self.cash[i] = {}
+		self.seats[i] = {}
 	end
-
+	
+	if self.settings == nil then self.settings = self.defaultsettings end
+	
     -- Load Defaults
     self:LoadDefaults()
 
@@ -789,7 +391,7 @@ function LUI_Holdem:OnRestore(eType, tSavedData)
     end
 
     if tSavedData ~= nil and tSavedData ~= "" then
-        self.settings = self:Extend(self.settings, tSavedData)
+        self.settings = tSavedData
     end
 end
 
@@ -1034,6 +636,11 @@ function LUI_Holdem:SendSplitMessage(tMessage,isTable)
 end
 
 function LUI_Holdem:Send(tMessage,isTable)
+	if self.name ~= self.game.host then
+		tMessage.ishost = false
+	elseif self.name == self.game.host then
+		tMessage.ishost = true
+	end
 	local strMsg = JSON.encode(tMessage)
 
 	if isTable == true then
@@ -1051,7 +658,7 @@ function LUI_Holdem:Send(tMessage,isTable)
 		    if string.len(tostring(strMsg)) > 450 then
 		    	self:SendSplitMessage(tMessage,isTable)
 		    else
-		    	self.chat:Send(tostring(strMsg))
+			   	self.chat:Send(tostring(strMsg))
 		    end
 		end
 	else
@@ -1204,6 +811,13 @@ function LUI_Holdem:OnGameMessage(message)
 	if not message or not message.action then
 		return
 	end
+	
+	if message.isHost == false and self.name ~= self.game.host then 
+		return
+	elseif message.isHost == false and self.name == self.game.host then
+		self:Send(message,true)
+		return
+	end
 
     if message.action == "join" then
         self:AddPlayer(message)
@@ -1239,9 +853,8 @@ function LUI_Holdem:OnGameMessage(message)
         end
     end
 
-    if not self.active == true then
-        return
-    end
+
+    if not self.active == true then return end
 
     if message.action == "new-round" then
         self:StartRound(message)
@@ -1259,6 +872,12 @@ function LUI_Holdem:OnGameMessage(message)
         self:OnReceiveTurn(message)
     elseif message.action == "river" then
         self:OnReceiveRiver(message)
+    elseif message.action == "stop" then
+        self:OnStop(message)
+    elseif message.action == "rebuy" then
+        self:OnRebuy(message)
+    elseif message.action == "showdown" then
+        self:OnStartShowdown(message)
     elseif message.action == "fold" then
         self:OnAction(message)
     elseif message.action == "check" then
@@ -1267,13 +886,8 @@ function LUI_Holdem:OnGameMessage(message)
         self:OnAction(message)
     elseif message.action == "raise" then
         self:OnAction(message)
-    elseif message.action == "stop" then
-        self:OnStop(message)
-    elseif message.action == "rebuy" then
-        self:OnRebuy(message)
-    elseif message.action == "showdown" then
-        self:OnStartShowdown(message)
 	end
+
 end
 
 function LUI_Holdem:OnDeny(message)
@@ -1349,7 +963,6 @@ function LUI_Holdem:AddPlayer(message)
 
         for i = 1, 10 do
             if self.players[i].name and self.players[i].name == message.sender then
-                exists = true
                 break
             end
         end
@@ -1585,7 +1198,7 @@ end
 
 function LUI_Holdem:OnCashAmountChanged(wndHandler, wndControl)
 	self.wndLobby:FindChild("BuyInSetting"):FindChild("CashWindow"):SetAmount(wndHandler:GetValue())
-
+--[[
     if wndHandler:GetValue() > 0 then
         -- Update Type Dropdown
         if self.wndLobby:FindChild("TypeDropdown"):GetText() == "Public" then
@@ -1617,6 +1230,7 @@ function LUI_Holdem:OnCashAmountChanged(wndHandler, wndControl)
             end
         end
     end
+]]
 end
 
 function LUI_Holdem:RemoveGame(message)
@@ -1812,6 +1426,8 @@ function LUI_Holdem:OnCreateGame()
 
     -- Join Chat Channel
     self:JoinChatChannel()
+
+	self:CheckButtons()
 end
 
 function LUI_Holdem:OnJoinWait()
@@ -1949,17 +1565,6 @@ end
 -- #
 -- #########################################################################################################################################
 -- #########################################################################################################################################
-
-
-
-function LUI_Holdem:ScaleOffsets(points)
-	local offsets = points
-	if offsets == nil then return end
-	for k,point in ipairs(offsets) do
-		--offsets[k] = point * scale
-	end
-	return offsets
-end
 
 
 function LUI_Holdem:BuildTable()
@@ -2347,7 +1952,7 @@ function LUI_Holdem:JoinTable(message)
 	self.wndPlayers[num]:Show(true)
 
     if self.game.host == self.name then
-        if not self.game.active == true and self.game.playerCount > 1 then
+        if not self.game.active == true and self.game.playerCount > 0 then
             self.wndTable:FindChild("BtnStart"):Show(true,true)
         end
     end
@@ -2572,7 +2177,7 @@ end
 
 function LUI_Holdem:LeaveTable()
 	-- Reset Game Data
-    self.game = nil
+    self.game = {}
     self.seat = nil
     self.active = false
     self.key = nil
@@ -3148,7 +2753,10 @@ function LUI_Holdem:OnActionConfirmTimer()
 end
 
 function LUI_Holdem:OnAction(message)
+	if message.isHost == false then return end
+	
 	Apollo.StopTimer("LUI_Holdem_TimedOut")
+	
     local cash = self.players[self.current].cash
     local text = message.action
     local color = message.action
@@ -4631,7 +4239,7 @@ function LUI_Holdem:OnBtnPause(wndHandler, wndControl)
 	local tMessage = {
 		action = "pause",
 		value = wndHandler:IsChecked(),
-		remaining = self.game.remaining
+		remaining = self.game.remaining or 0
 	}
 
 	self:Send(tMessage,true)
@@ -4792,6 +4400,9 @@ function LUI_Holdem:HideButtons()
 end
 
 function LUI_Holdem:CheckButtons()
+	local SitOutText = self.wndTable:FindChild("SitOutText")
+	local LockText = self.wndTable:FindChild("LockText")
+	local PauseText = self.wndTable:FindChild("PauseText")
 	local btnSitout = self.wndTable:FindChild("BtnSitout")
 	local btnPause = self.wndTable:FindChild("BtnPause")
 	local btnRebuy = self.wndTable:FindChild("BtnRebuy")
@@ -4799,17 +4410,24 @@ function LUI_Holdem:CheckButtons()
 	local btnLock = self.wndTable:FindChild("BtnLock")
 	local btnLog = self.wndTable:FindChild("BtnLog")
 
-	-- Hide all buttons
-	btnSitout:Show(false,true)
-	btnPause:Show(false,true)
-	btnRebuy:Show(false,true)
-	btnStart:Show(false,true)
-	btnLock:Show(false,true)
-	btnLog:Show(false,true)
+	-- disable all buttons
+	btnSitout:Show(true,true) 
+	btnPause:Show(true,true) 
+	btnRebuy:Show(true,true)  
+	btnStart:Show(true,true)  
+	btnLock:Show(true,true)  
+	btnLog:Show(true,true)  
+	btnSitout:Enable(false)
+	btnPause:Enable(false)
+	btnRebuy:Enable(false) 
+	btnStart:Enable(false) 
+	btnLock:Enable(false) 
+	btnLog:Enable(false) 
 
 	if self.game.active == true and self:IsPlaying() == true then
-		btnSitout:Show(true,true)
-        btnLog:Show(true,true)
+		btnStart:Show(false,true)
+		btnSitout:Enable(true) 
+        btnLog:Enable(true) 
 
 		if self.players[self.seat].afk ~= nil and self.players[self.seat].afk == true then
 			btnSitout:SetCheck(true)
@@ -4818,8 +4436,8 @@ function LUI_Holdem:CheckButtons()
 		end
 
 		if self.game.host == self.name then
-			btnLock:Show(true,true)
-			btnPause:Show(true,true)
+			btnLock:Enable(true)
+			btnPause:Enable(true) 
 
 			if self.game.paused ~= nil and self.game.paused == true then
 				btnPause:SetCheck(true)
@@ -4834,8 +4452,8 @@ function LUI_Holdem:CheckButtons()
 			end
 		end
 
-		if self.game.rebuy and self.game.rebuy > 0 then
-            btnRebuy:Show(true,true)
+		if (self.game.rebuy and self.game.rebuy > 0) and GameLib.GetPlayerCurrency():GetAmount() > self.game.buyIn then
+            btnRebuy:Enable(true) 
 
             -- Reposition Log Button
             --btnLog:SetAnchorPoints(1,0,1,1)
@@ -4857,7 +4475,8 @@ function LUI_Holdem:CheckButtons()
 		end
 	else
 		if self.game.host == self.name then
-			btnStart:Show(true,true)
+			btnRebuy:Show(false,true)
+			btnStart:Enable(true) 
 		end
 	end
 end
@@ -5247,7 +4866,7 @@ function LUI_Holdem:ShowTimer()
     end
 
 	self.ActionTaken = false
-	self.TimeWarning = 4
+	self.TimeWarning = 5.2
     self.actionTimer:Stop()
     self.actionTimer:Set(0.2, true, "OnBarTimer")
     self.actionTimer:Start()
@@ -5258,19 +4877,19 @@ function LUI_Holdem:OnBarTimer()
 		local warn
         local diff = os.time() - self.players[self.current].timer
         self.players[self.current].remaining = self.game.actionTimer - diff
-		if self.players[self.current].remaining < 4.2 and self.current == self.seat then
+		if self.players[self.current].remaining > 0 and self.current == self.seat then
 			warn = math.floor(self.players[self.current].remaining)
-			Print(warn.."<"..self.TimeWarning)
+			--Print(warn.."<"..self.TimeWarning)
 			if warn < self.TimeWarning and self.settings["sound"] then
 				Sound.Play(185)
 				self.TimeWarning = warn
 			end			
 		end
 
-        if self.players[self.current].remaining > .2 then
+        if self.players[self.current].remaining > 0 then
 			self.TimedOut = false
             self.wndPlayers[self.current]:FindChild("Bar"):SetMax(self.game.actionTimer)
-            self.wndPlayers[self.current]:FindChild("Bar"):SetProgress(self.players[self.current].remaining)
+            self.wndPlayers[self.current]:FindChild("Bar"):SetProgress(self.players[self.current].remaining - 0.2)
             self.wndPlayers[self.current]:FindChild("Bar"):Show(true)
         elseif self.players[self.current].remaining > -1 and self.current == self.seat then
 			self:ResetNav()
@@ -5551,9 +5170,7 @@ end
 
 function LUI_Holdem:OnResize( wndHandler, wndControl )
 	local l,t,r,b = self.wndTable:GetAnchorOffsets()
-	self.UIScale = (r - l)/1400
 	self.settings["tablepos"] = {l,t,r,b}
-	self.settings["scale"] = self.UIScale
 end
 
 -----------------------------------------------------------------------------------------------
