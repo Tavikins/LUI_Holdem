@@ -1347,6 +1347,7 @@ function LUI_Holdem:OnCreateGame()
 	local playerFaction = GameLib.GetPlayerUnit():GetFaction()
 	local maxCurrency = GameLib.GetPlayerCurrency():GetAmount()
 	local nAmount = self.wndLobby:FindChild("NewGame"):FindChild("CashWindow"):GetAmount()
+	math.randomseed(os.time())
 
 	if password ~= nil and password ~= "" then
 		locked = true
@@ -3350,7 +3351,6 @@ end
 
 function LUI_Holdem:Shuffle()
 	--Print("Shuffle")
-	math.randomseed(os.time())
 	for k,v in pairs(self.validcards) do
 		self.validcards[k] = true
 	end
